@@ -1,0 +1,77 @@
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Image settings
+image:
+  repository: ethereum/client-go
+  tag: stable
+  pullPolicy: IfNotPresent
+
+# Network and sync
+network: mainnet
+syncMode: snap
+
+# Auth RPC (Engine API)
+authrpc:
+  enabled: true
+  port: 8551
+
+# HTTP JSON-RPC
+http:
+  enabled: false
+  port: 8545
+  wsEnabled: false
+  wsPort: 8546
+  corsOrigins: ["*"]
+  vhosts: ["*"]
+
+# Metrics
+metrics:
+  enabled: true
+  port: 6060
+  path: /metrics
+
+# P2P
+p2p:
+  port: 30303
+
+# Persistence
+persistence:
+  enabled: true
+  accessModes: ["ReadWriteOnce"]
+  size: 200Gi
+  storageClass: ""
+
+# Resources / scheduling
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Services
+service:
+  p2p:
+    type: ClusterIP
+  rpc:
+    type: ClusterIP
+  engine:
+    type: ClusterIP
+  metrics:
+    type: ClusterIP
+
+# ServiceMonitor
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+  relabelings: []
+  metricRelabelings: []
+
+# JWT for Engine API authentication
+jwt:
+  enabled: false
+  existingSecret: ""
+  existingSecretKey: jwt
+  value: ""

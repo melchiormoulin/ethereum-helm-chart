@@ -1,0 +1,20 @@
+# Common VCS dirs
+.git/
+.gitignore
+.svn/
+.hg/
+
+# IDEs/editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Charts
+charts/
+tmp/
+*.tgz

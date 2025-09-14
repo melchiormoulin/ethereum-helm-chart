@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lighthouse.fullname" . }}-p2p
+  labels:
+    {{- include "lighthouse.labels" . | nindent 4 }}
+    app.kubernetes.io/component: lighthouse
+spec:
+  type: {{ .Values.service.p2p.type }}
+  selector:
+    {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
+  ports:
+    - name: p2p-tcp
+      port: {{ .Values.p2p.port }}
+      targetPort: p2p-tcp
+      protocol: TCP
+    - name: p2p-udp
+      port: {{ .Values.p2p.port }}
+      targetPort: p2p-udp
+      protocol: UDP
+---
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lighthouse.fullname" . }}-api
+  labels:
+    {{- include "lighthouse.labels" . | nindent 4 }}
+    app.kubernetes.io/component: lighthouse
+spec:
+  type: {{ .Values.service.api.type }}
+  selector:
+    {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
+  ports:
+    - name: api
+      port: {{ .Values.api.port }}
+      targetPort: api
+      protocol: TCP
+{{- end }}
+---
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lighthouse.fullname" . }}-metrics
+  labels:
+    {{- include "lighthouse.labels" . | nindent 4 }}
+    app.kubernetes.io/component: lighthouse
+spec:
+  type: {{ .Values.service.metrics.type }}
+  selector:
+    {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
+  ports:
+    - name: metrics
+      port: {{ .Values.metrics.port }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}

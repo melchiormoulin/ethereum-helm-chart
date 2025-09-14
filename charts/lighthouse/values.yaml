@@ -1,0 +1,74 @@
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Image settings
+image:
+  repository: sigp/lighthouse
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Network
+network: mainnet
+
+# Execution layer connection
+execution:
+  enabled: true
+  endpoint: "" # If empty, defaults to http://<release>-geth-engine:<enginePort>
+  enginePort: 8551
+
+# Metrics
+metrics:
+  enabled: true
+  port: 5054
+  path: /metrics
+
+# HTTP API
+api:
+  enabled: true
+  port: 5052
+
+# P2P
+p2p:
+  port: 9000
+
+# Checkpoint sync
+checkpointSyncUrl: ""
+
+# Persistence
+persistence:
+  enabled: true
+  accessModes: ["ReadWriteOnce"]
+  size: 100Gi
+  storageClass: ""
+
+# Resources / scheduling
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Services
+service:
+  p2p:
+    type: ClusterIP
+  api:
+    type: ClusterIP
+  metrics:
+    type: ClusterIP
+
+# ServiceMonitor
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+  relabelings: []
+  metricRelabelings: []
+
+# JWT for execution engine authentication
+jwt:
+  enabled: false
+  existingSecret: ""
+  existingSecretKey: jwt
+  value: ""

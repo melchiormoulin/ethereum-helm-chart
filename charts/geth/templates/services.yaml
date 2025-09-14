@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geth.fullname" . }}-p2p
+  labels:
+    {{- include "geth.labels" . | nindent 4 }}
+    app.kubernetes.io/component: geth
+spec:
+  type: {{ .Values.service.p2p.type }}
+  selector:
+    {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
+  ports:
+    - name: p2p-tcp
+      port: {{ .Values.p2p.port }}
+      targetPort: p2p-tcp
+      protocol: TCP
+    - name: p2p-udp
+      port: {{ .Values.p2p.port }}
+      targetPort: p2p-udp
+      protocol: UDP
+---
+{{- if .Values.http.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geth.fullname" . }}-rpc
+  labels:
+    {{- include "geth.labels" . | nindent 4 }}
+    app.kubernetes.io/component: geth
+spec:
+  type: {{ .Values.service.rpc.type }}
+  selector:
+    {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.http.port }}
+      targetPort: http
+      protocol: TCP
+    {{- if .Values.http.wsEnabled }}
+    - name: ws
+      port: {{ .Values.http.wsPort }}
+      targetPort: ws
+      protocol: TCP
+    {{- end }}
+{{- end }}
+---
+{{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geth.fullname" . }}-engine
+  labels:
+    {{- include "geth.labels" . | nindent 4 }}
+    app.kubernetes.io/component: geth
+spec:
+  type: {{ .Values.service.engine.type }}
+  selector:
+    {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
+  ports:
+    - name: engine
+      port: {{ .Values.authrpc.port }}
+      targetPort: {{ .Values.authrpc.port }}
+      protocol: TCP
+{{- end }}
+---
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geth.fullname" . }}-metrics
+  labels:
+    {{- include "geth.labels" . | nindent 4 }}
+    app.kubernetes.io/component: geth
+spec:
+  type: {{ .Values.service.metrics.type }}
+  selector:
+    {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
+  ports:
+    - name: metrics
+      port: {{ .Values.metrics.port }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}
