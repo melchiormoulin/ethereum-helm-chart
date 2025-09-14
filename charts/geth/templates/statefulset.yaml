@@ -110,7 +110,7 @@ spec:
                 path: jwt
       {{- end }}
   {{-  if .Values.persistence.existingClaim }}
-        - name: storage
+        - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim }}
   {{- else }}
