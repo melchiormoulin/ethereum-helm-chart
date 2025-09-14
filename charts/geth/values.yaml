@@ -39,6 +39,7 @@ p2p:
 # Persistence
 persistence:
   enabled: true
+  existingClaim: ""
   accessModes: ["ReadWriteOnce"]
   size: 200Gi
   storageClass: ""
@@ -71,7 +72,6 @@ serviceMonitor:
 
 # JWT for Engine API authentication
 jwt:
-  enabled: false
-  existingSecret: ""
+  enabled: true
+  existingSecret: "jwt-token"
   existingSecretKey: jwt
-  value: ""

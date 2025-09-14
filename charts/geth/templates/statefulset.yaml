@@ -86,15 +86,7 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
-      volumes:
-        - name: jwt
-          secret:
-            secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}
-            items:
-              - key: {{ .Values.jwt.existingSecretKey | default "jwt" }}
-                path: jwt
-      {{- end }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -107,6 +99,20 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+        - name: jwt
+          secret:
+            secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}
+            items:
+              - key: {{ .Values.jwt.existingSecretKey | default "jwt" }}
+                path: jwt
+      {{- end }}
+  {{-  if .Values.persistence.existingClaim }}
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+  {{- else }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -119,3 +125,4 @@ spec:
         {{- if .Values.persistence.storageClass }}
         storageClassName: {{ .Values.persistence.storageClass }}
         {{- end }}
+  {{- end }}
