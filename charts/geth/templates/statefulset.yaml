@@ -18,7 +18,7 @@ spec:
         {{- include "geth.labels" . | nindent 8 }}
         {{- include "geth.selectorLabels" (list . "geth") | nindent 8 }}
     spec:
-      enableServiceLinks: false
+      enableServiceLinks: false # avoid GETH env var issues if helmrelease name is geth.
       containers:
         - name: geth
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
