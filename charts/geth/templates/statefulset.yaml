@@ -18,6 +18,7 @@ spec:
         {{- include "geth.labels" . | nindent 8 }}
         {{- include "geth.selectorLabels" (list . "geth") | nindent 8 }}
     spec:
+      enableServiceLinks: false
       containers:
         - name: geth
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
