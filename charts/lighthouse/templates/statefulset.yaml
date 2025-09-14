@@ -30,7 +30,7 @@ spec:
             - "--datadir=/var/lib/lighthouse"
             - "--port={{ .Values.p2p.port }}"
             {{- if .Values.execution.enabled }}
-            {{- $defaultEndpoint := printf "http://el-geth-engine:%d" .Release.Name (int .Values.execution.enginePort) -}}
+            {{- $defaultEndpoint := printf "http://el-geth-engine:%d"(int .Values.execution.enginePort) -}}
             {{- $endpoint := default $defaultEndpoint .Values.execution.endpoint -}}
             {{- if .Values.jwt.enabled }}
             - "--execution-endpoint={{ $endpoint }}"
