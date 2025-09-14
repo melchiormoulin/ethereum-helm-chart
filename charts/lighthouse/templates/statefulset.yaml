@@ -92,7 +92,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+      {{- if and .Values.jwt.enabled }}
         - name: jwt
           secret:
             secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}
