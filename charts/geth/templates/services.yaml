@@ -8,6 +8,7 @@ metadata:
 spec:
   type: {{ .Values.service.p2p.type }}
   selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
   ports:
     - name: p2p-tcp
@@ -30,6 +31,7 @@ metadata:
 spec:
   type: {{ .Values.service.rpc.type }}
   selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
   ports:
     - name: http
@@ -55,6 +57,7 @@ metadata:
 spec:
   type: {{ .Values.service.engine.type }}
   selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
   ports:
     - name: engine
@@ -74,6 +77,7 @@ metadata:
 spec:
   type: {{ .Values.service.metrics.type }}
   selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
   ports:
     - name: metrics
