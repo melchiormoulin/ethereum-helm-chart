@@ -17,6 +17,7 @@ spec:
         {{- include "lighthouse.labels" . | nindent 8 }}
         {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 8 }}
     spec:
+      enableServiceLinks: false # avoid LIGHTHOUSE env var issues if helmrelease name is lighthouse.
       containers:
         - name: lighthouse
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -27,7 +28,7 @@ spec:
             - "--datadir=/var/lib/lighthouse"
             - "--port={{ .Values.p2p.port }}"
             {{- if .Values.execution.enabled }}
-            {{- $defaultEndpoint := printf "http://%s-geth-engine:%d" .Release.Name (int .Values.execution.enginePort) -}}
+            {{- $defaultEndpoint := printf "http://el-geth-engine:%d" .Release.Name (int .Values.execution.enginePort) -}}
             {{- $endpoint := default $defaultEndpoint .Values.execution.endpoint -}}
             {{- if .Values.jwt.enabled }}
             - "--execution-endpoint={{ $endpoint }}"
@@ -76,15 +77,6 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- if and .Values.jwt.enabled .Values.execution.enabled }}
-      volumes:
-        - name: jwt
-          secret:
-            secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ else }}{{ printf "%s-jwt" .Release.Name }}{{ end }}
-            items:
-              - key: {{ .Values.jwt.existingSecretKey | default "jwt" }}
-                path: jwt
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -97,6 +89,20 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+        - name: jwt
+          secret:
+            secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}
+            items:
+              - key: {{ .Values.jwt.existingSecretKey | default "jwt" }}
+                path: jwt
+      {{- end }} 
+  {{-  if .Values.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+  {{- else }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -109,3 +115,4 @@ spec:
         {{- if .Values.persistence.storageClass }}
         storageClassName: {{ .Values.persistence.storageClass }}
         {{- end }}
+  {{- end }}

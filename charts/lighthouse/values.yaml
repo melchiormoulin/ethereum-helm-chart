@@ -14,7 +14,7 @@ network: mainnet
 # Execution layer connection
 execution:
   enabled: true
-  endpoint: "" # If empty, defaults to http://<release>-geth-engine:<enginePort>
+  endpoint: "" # If empty, defaults to http://el-geth-engine:<enginePort>
   enginePort: 8551
 
 # Metrics
