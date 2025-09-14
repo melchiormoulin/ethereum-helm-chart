@@ -68,7 +68,7 @@ serviceMonitor:
 
 # JWT for execution engine authentication
 jwt:
-  enabled: false
+  enabled: true
   existingSecret: ""
   existingSecretKey: jwt
   value: ""
