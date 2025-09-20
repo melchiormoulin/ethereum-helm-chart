@@ -61,9 +61,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
-            items:
-              - key: smartnode.yaml
-                path: smartnode.yaml
         - name: data
       {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
