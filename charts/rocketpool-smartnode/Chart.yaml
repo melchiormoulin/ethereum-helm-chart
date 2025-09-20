@@ -1,0 +1,5 @@
+apiVersion: v2
+name: rocketpool-smartnode
+description: Deploy Rocket Pool Smartnode connected to existing Geth & Lighthouse
+type: application
+version: 0.1.0

@@ -1,0 +1,96 @@
+# --- Image & runtime ---
+image:
+  repository: rocketpool/smartnode
+  tag: v1.17.3   
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+podAnnotations: {}
+podLabels: {}
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "512Mi"
+  limits: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Optionally override entrypoint if your image uses a different start command.
+# Default tries to run the Smartnode in foreground so K8s can manage it.
+command: ["rocketpool", "service", "start", "--foreground"]
+args: []
+
+# --- Connectivity to your existing clients ---
+clients:
+  # These should point to Services you already run for geth & lighthouse
+  executionHttpUrl: http://geth:8545
+  executionWsUrl:   ws://geth:8546
+  beaconHttpUrl:    http://lighthouse:5052
+
+# --- Rocket Pool config (rendered into a config file the Smartnode reads) ---
+# This is a simplified example. Tweak keys to match your Smartnode version.
+rocketpool:
+  network: mainnet          # mainnet | holesky
+  feeRecipient: "0xYOUR_FEE_RECIPIENT"
+  nodeAddress:  "0xYOUR_NODE_ADDRESS"
+  # Optional: MEV relay(s), graffiti, alerts, etc.
+  mev:
+    enabled: false
+    relays: []
+  graffiti: "rpool-k8s"
+  # Any extra raw lines to append into the config file
+  extraConfig: |
+    # extra smartnode config lines here if needed
+
+# --- Wallet / keystores ---
+wallet:
+  enabled: true
+  # If you already store secrets elsewhere, set existingSecret and leave the rest blank.
+  existingSecret: ""
+  # Otherwise create a Secret from these keys:
+  keystoreJson: ""  # paste your keystore JSON (string) or mount via externalSecret
+  password: ""      # keystore password
+  # For mnemonic-based setups, you might store a seed or validator keys differently.
+  extraEnv: []      # e.g., [{ name: RPOOL_KEYSTORE_PATH, value: /var/lib/rocketpool/keys }]
+
+# --- Persistence ---
+persistence:
+  enabled: true
+  storageClass: "local-storage-ssd"   # adapt to your default class
+  accessModes: ["ReadWriteOnce"]
+  size: 10Gi
+  existingClaim: ""                   # if you want to bind an existing PVC
+  mountPath: /var/lib/rocketpool
+
+# --- Service ---
+service:
+  type: ClusterIP
+  annotations: {}
+  labels: {}
+  ports:
+    # expose any HTTP status / metrics your Smartnode uses
+    http:
+      enabled: true
+      port: 9101
+      targetPort: 9101
+    metrics:
+      enabled: true
+      port: 9102
+      targetPort: 9102
+
+# --- ServiceMonitor (Prometheus Operator) ---
+serviceMonitor:
+  enabled: false
+  namespace: ""       # where your Prometheus Operator expects ServiceMonitors
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels: {}

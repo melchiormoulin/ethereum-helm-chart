@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rocketpool-smartnode.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+{{ toYaml .Values.service.annotations | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+{{- if .Values.service.ports.http.enabled }}
+    - name: http
+      port: {{ .Values.service.ports.http.port }}
+      targetPort: {{ .Values.service.ports.http.targetPort }}
+      protocol: TCP
+{{- end }}
+{{- if .Values.service.ports.metrics.enabled }}
+    - name: metrics
+      port: {{ .Values.service.ports.metrics.port }}
+      targetPort: {{ .Values.service.ports.metrics.targetPort }}
+      protocol: TCP
+{{- end }}
