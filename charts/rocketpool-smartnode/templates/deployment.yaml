@@ -65,16 +65,16 @@ spec:
               - key: smartnode.yaml
                 path: smartnode.yaml
         - name: data
-{{- if .Values.persistence.enabled }}
+      {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{- if .Values.persistence.existingClaim -}}
-              {{ .Values.persistence.existingClaim }}
-            {{- else -}}
-              {{ include "rocketpool-smartnode.fullname" . }}-data
-            {{- end }}
-{{- else }}
+        {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+        {{- else }}
+            claimName: {{- include "rocketpool-smartnode.fullname" . }}-data
+        {{- end }}
+      {{- else }}
           emptyDir: {}
-{{- end }}
+      {{- end }}
 {{- if or .Values.wallet.existingSecret (and .Values.wallet.enabled (not .Values.wallet.existingSecret)) }}
         - name: wallet
           secret:
