@@ -19,9 +19,9 @@ authrpc:
 
 # HTTP JSON-RPC
 http:
-  enabled: false
+  enabled: true
   port: 8545
-  wsEnabled: false
+  wsEnabled: true
   wsPort: 8546
   corsOrigins: ["*"]
   vhosts: ["*"]
