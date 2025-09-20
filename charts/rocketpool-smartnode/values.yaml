@@ -26,7 +26,7 @@ securityContext:
 
 # Optionally override entrypoint if your image uses a different start command.
 # Default tries to run the Smartnode in foreground so K8s can manage it.
-command: ["rocketpool", "service", "start", "--foreground"]
+command: ["rocketpool", "node","--settings", "/etc/rocketpool/smartnode.yaml"]
 args: []
 
 # --- Connectivity to your existing clients ---
