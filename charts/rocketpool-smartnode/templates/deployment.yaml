@@ -47,7 +47,7 @@ spec:
 {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /etc/rocketpool
+              mountPath: /.rocketpool/
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
 {{- if or .Values.wallet.existingSecret (and .Values.wallet.enabled (not .Values.wallet.existingSecret)) }}

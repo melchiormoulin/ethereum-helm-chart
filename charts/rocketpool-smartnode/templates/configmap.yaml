@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  smartnode.yaml: |
+  user-settings.yml: |
     # Minimal Smartnode config rendered from values.yaml
     network: {{ .Values.rocketpool.network | quote }}
     execution:
