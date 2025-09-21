@@ -46,10 +46,11 @@ spec:
               protocol: TCP
 {{- end }}
           volumeMounts:
-            - name: config
-              mountPath: /root/.rocketpool/
             - name: data
               mountPath: /root/.rocketpool 
+            - name: config
+              mountPath: /root/.rocketpool/user-settings.yml
+              subPath: user-settings.yml              
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
