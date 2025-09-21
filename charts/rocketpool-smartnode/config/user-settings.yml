@@ -214,7 +214,7 @@ root:
   isNative: "false"
   nodeMetricsPort: "9102"
   reconnectDelay: 60s
-  rpDir: ~/.rocketpool
+  rpDir: /root/.rocketpool
   useFallbackClients: "false"
   vcMetricsPort: "9101"
   version: v1.17.3
@@ -222,7 +222,7 @@ root:
 smartnode:
   archiveECUrl: ""
   autoInitVPThreshold: "5"
-  dataPath: /var/lib/rocketpool
+  dataPath: /root/.rocketpool/data
   distributeThreshold: "1"
   manualMaxFee: "0"
   minipoolStakeGasThreshold: "150"
