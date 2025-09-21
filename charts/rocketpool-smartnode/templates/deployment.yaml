@@ -54,9 +54,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
-            items:
-              - key: user-settings.yml
-                path: user-settings.yml
       nodeSelector:
 {{ toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
