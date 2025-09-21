@@ -47,7 +47,7 @@ spec:
 {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /root/.rocketpool/user-settings.yml
+              mountPath: /root/.rocketpool/
             - name: data
               mountPath: /root/.rocketpool 
           resources:
@@ -56,9 +56,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
-            items:
-            - key: user-settings.yml
-              path: user-settings.yml
         - name: data
       {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
