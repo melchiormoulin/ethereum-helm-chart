@@ -61,7 +61,7 @@ persistence:
   accessModes: ["ReadWriteOnce"]
   size: 10Gi
   existingClaim: ""                   # if you want to bind an existing PVC
-  mountPath: /var/lib/rocketpool
+  mountPath: /root/.rocketpool  # where to mount the volume in the container
 
 # --- Service ---
 service:
