@@ -46,8 +46,6 @@ spec:
               protocol: TCP
 {{- end }}
           volumeMounts:
-            - name: data
-              mountPath: /root/.rocketpool  # where to mount the volume in the container
             - name: config
               mountPath: /root/.rocketpool/user-settings.yml
               subPath: user-settings.yml
@@ -60,8 +58,6 @@ spec:
             items:
               - key: user-settings.yml
                 path: user-settings.yml
-        - name: data
-          emptyDir: {}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
