@@ -50,12 +50,7 @@ spec:
               mountPath: ~/.rocketpool/user-settings.yml
               subPath: user-settings.yml 
             - name: data
-              mountPath: {{ .Values.persistence.mountPath }}
-{{- if or .Values.wallet.existingSecret (and .Values.wallet.enabled (not .Values.wallet.existingSecret)) }}
-            - name: wallet
-              mountPath: /etc/rocketpool/wallet
-              readOnly: true
-{{- end }}
+              mountPath: /root/.rocketpool 
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -76,11 +71,6 @@ spec:
       {{- else }}
           emptyDir: {}
       {{- end }}
-{{- if or .Values.wallet.existingSecret (and .Values.wallet.enabled (not .Values.wallet.existingSecret)) }}
-        - name: wallet
-          secret:
-            secretName: {{ if .Values.wallet.existingSecret }}{{ .Values.wallet.existingSecret }}{{ else }}{{ include "rocketpool-smartnode.fullname" . }}-wallet{{ end }}
-{{- end }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
