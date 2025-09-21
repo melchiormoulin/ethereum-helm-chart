@@ -52,10 +52,10 @@ spec:
               mountPath: /.rocketpool/user-settings.yml
               subPath: user-settings.yml
             - name: wallet
-              mountPath: ~/.rocketpool/data/password
+              mountPath: /.rocketpool/data/password
               subPath: password
             - name: wallet
-              mountPath: ~/.rocketpool/data/wallet
+              mountPath: /.rocketpool/data/wallet
               subPath: keystore.json
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
