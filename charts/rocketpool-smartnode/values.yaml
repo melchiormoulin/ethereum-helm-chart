@@ -29,17 +29,9 @@ securityContext:
 command: ["rocketpool", "node"]
 args: []
 
-# --- Connectivity to your existing clients ---
-clients:
-  # These should point to Services you already run for geth & lighthouse
-  executionHttpUrl: http://geth:8545
-  executionWsUrl:   ws://geth:8546
-  beaconHttpUrl:    http://lighthouse:5052
-
 # --- Rocket Pool config (rendered into a config file the Smartnode reads) ---
 # This is a simplified example. Tweak keys to match your Smartnode version.
 rocketpool:
-  network: mainnet          # mainnet | holesky
   feeRecipient: "0xYOUR_FEE_RECIPIENT"
   nodeAddress:  "0xYOUR_NODE_ADDRESS"
   # Optional: MEV relay(s), graffiti, alerts, etc.

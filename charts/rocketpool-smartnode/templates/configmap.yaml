@@ -6,23 +6,5 @@ metadata:
     app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  user-settings.yml: |
-    # Minimal Smartnode config rendered from values.yaml
-    network: {{ .Values.rocketpool.network | quote }}
-    execution:
-      http_url: {{ .Values.clients.executionHttpUrl | quote }}
-      ws_url: {{ .Values.clients.executionWsUrl | quote }}
-    consensus:
-      beacon_http_url: {{ .Values.clients.beaconHttpUrl | quote }}
-    fee_recipient: {{ .Values.rocketpool.feeRecipient | quote }}
-    node_address: {{ .Values.rocketpool.nodeAddress | quote }}
-    graffiti: {{ .Values.rocketpool.graffiti | quote }}
-    mev:
-      enabled: {{ .Values.rocketpool.mev.enabled }}
-      relays:
-{{- range .Values.rocketpool.mev.relays }}
-        - {{ . | quote }}
-{{- end }}
-{{- if .Values.rocketpool.extraConfig }}
-{{ .Values.rocketpool.extraConfig | nindent 4 }}
-{{- end }}
+  user-settings.yml: |-
+    {{ .Files.Get "config/user-settings.yml" | nindent 4 }}
