@@ -49,7 +49,9 @@ persistence:
   size: 10Gi
   existingClaim: ""                   # if you want to bind an existing PVC
   mountPath: /root/.rocketpool  # where to mount the volume in the container
-
+wallet:
+  enabled: true
+  existingSecret: ""      # if you already store secrets elsewhere
 # --- Service ---
 service:
   type: ClusterIP

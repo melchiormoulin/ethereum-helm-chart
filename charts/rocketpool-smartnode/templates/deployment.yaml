@@ -51,6 +51,12 @@ spec:
             - name: config
               mountPath: /.rocketpool/user-settings.yml
               subPath: user-settings.yml
+            - name: node-password
+              mountPath: /.rocketpool/node-password
+              subPath: node-password
+            - name: keystore
+              mountPath: /.rocketpool/keystore.json
+              subPath: keystore.json
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -59,6 +65,9 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
+        - name: wallet
+          secret:
+            secretName: {{ include "rocketpool-smartnode.fullname" . }}-wallet
       nodeSelector:
 {{ toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
