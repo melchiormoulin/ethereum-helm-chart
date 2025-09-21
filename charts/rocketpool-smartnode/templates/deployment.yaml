@@ -47,10 +47,10 @@ spec:
 {{- end }}
           volumeMounts:
             - name: data
-              mountPath: /root/.rocketpool 
+              mountPath: {{ trimSuffix "/" .Values.persistence.mountPath }}
             - name: config
-              mountPath: /.rocketpool/user-settings.yml
-              subPath: user-settings.yml              
+              mountPath: {{ printf "%s/%s" (trimSuffix "/" .Values.persistence.mountPath) "user-settings.yml" }}
+              subPath: user-settings.yml
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
