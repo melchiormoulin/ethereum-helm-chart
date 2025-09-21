@@ -18,11 +18,7 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 1000
+
 
 # Optionally override entrypoint if your image uses a different start command.
 # Default tries to run the Smartnode in foreground so K8s can manage it.
