@@ -47,9 +47,9 @@ spec:
 {{- end }}
           volumeMounts:
             - name: data
-              mountPath: {{ trimSuffix "/" .Values.persistence.mountPath }}
+              mountPath: /root/.rocketpool  # where to mount the volume in the container
             - name: config
-              mountPath: {{ printf "%s/%s" (trimSuffix "/" .Values.persistence.mountPath) "user-settings.yml" }}
+              mountPath: /root/.rocketpool/user-settings.yml
               subPath: user-settings.yml
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
@@ -57,6 +57,9 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
+            items:
+              - key: user-settings.yml
+                path: user-settings.yml
         - name: data
       {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:

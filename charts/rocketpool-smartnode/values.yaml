@@ -26,33 +26,8 @@ securityContext:
 
 # Optionally override entrypoint if your image uses a different start command.
 # Default tries to run the Smartnode in foreground so K8s can manage it.
-command: ["rocketpool", "node"]
-args: []
-
-# --- Rocket Pool config (rendered into a config file the Smartnode reads) ---
-# This is a simplified example. Tweak keys to match your Smartnode version.
-rocketpool:
-  feeRecipient: "0xYOUR_FEE_RECIPIENT"
-  nodeAddress:  "0xYOUR_NODE_ADDRESS"
-  # Optional: MEV relay(s), graffiti, alerts, etc.
-  mev:
-    enabled: false
-    relays: []
-  graffiti: "rpool-k8s"
-  # Any extra raw lines to append into the config file
-  extraConfig: |
-    # extra smartnode config lines here if needed
-
-# --- Wallet / keystores ---
-wallet:
-  enabled: true
-  # If you already store secrets elsewhere, set existingSecret and leave the rest blank.
-  existingSecret: ""
-  # Otherwise create a Secret from these keys:
-  keystoreJson: ""  # paste your keystore JSON (string) or mount via externalSecret
-  password: ""      # keystore password
-  # For mnemonic-based setups, you might store a seed or validator keys differently.
-  extraEnv: []      # e.g., [{ name: RPOOL_KEYSTORE_PATH, value: /var/lib/rocketpool/keys }]
+command: ["rocketpool"]
+args: [ "node"]
 
 # --- Persistence ---
 persistence:
@@ -61,7 +36,6 @@ persistence:
   accessModes: ["ReadWriteOnce"]
   size: 10Gi
   existingClaim: ""                   # if you want to bind an existing PVC
-  mountPath: /root/.rocketpool  # where to mount the volume in the container
 
 # --- Service ---
 service:
