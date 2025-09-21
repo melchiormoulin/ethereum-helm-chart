@@ -47,7 +47,7 @@ spec:
 {{- end }}
           volumeMounts:
             - name: config
-              mountPath: ~/.rocketpool/user-settings.yml
+              mountPath: /.rocketpool/user-settings.yml
               subPath: user-settings.yml 
             - name: data
               mountPath: /root/.rocketpool 
