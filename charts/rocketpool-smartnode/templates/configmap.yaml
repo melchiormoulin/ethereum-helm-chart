@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
-  user-settings.yml:
+  user-settings.yml: |-
     addons-gww:
       additionalFlags: ""
       containerTag: rocketpool/graffiti-wall-addon:v1.0.1

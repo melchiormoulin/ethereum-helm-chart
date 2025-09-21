@@ -29,6 +29,18 @@ securityContext:
 command: ["rocketpool"]
 args: [ "node"]
 
+
+# --- Wallet / keystores ---
+wallet:
+  enabled: true
+  # If you already store secrets elsewhere, set existingSecret and leave the rest blank.
+  existingSecret: ""
+  # Otherwise create a Secret from these keys:
+  keystoreJson: ""  # paste your keystore JSON (string) or mount via externalSecret
+  password: ""      # keystore password
+  # For mnemonic-based setups, you might store a seed or validator keys differently.
+  extraEnv: []      # e.g., [{ name: RPOOL_KEYSTORE_PATH, value: /var/lib/rocketpool/keys }]
+
 # --- Persistence ---
 persistence:
   enabled: true
@@ -36,6 +48,7 @@ persistence:
   accessModes: ["ReadWriteOnce"]
   size: 10Gi
   existingClaim: ""                   # if you want to bind an existing PVC
+  mountPath: /root/.rocketpool  # where to mount the volume in the container
 
 # --- Service ---
 service:
