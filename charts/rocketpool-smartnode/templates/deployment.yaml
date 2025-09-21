@@ -47,8 +47,7 @@ spec:
 {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /root/.rocketpool/user-settings.yml
-              subPath: user-settings.yml
+              mountPath: /root/.rocketpool/
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
