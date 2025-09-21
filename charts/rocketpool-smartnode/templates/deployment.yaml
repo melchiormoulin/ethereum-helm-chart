@@ -51,10 +51,10 @@ spec:
             - name: config
               mountPath: /.rocketpool/user-settings.yml
               subPath: user-settings.yml
-            - name: node-password
+            - name: wallet
               mountPath: /.rocketpool/node-password
               subPath: node-password
-            - name: keystore
+            - name: wallet
               mountPath: /.rocketpool/keystore.json
               subPath: keystore.json
           resources:
