@@ -46,11 +46,16 @@ spec:
               protocol: TCP
 {{- end }}
           volumeMounts:
-            - name: config
+            - name: home
               mountPath: /.rocketpool/
+            - name: config
+              mountPath: /.rocketpool/user-settings.yml
+              subpath: user-settings.yml
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
+        - name: home
+          emptyDir: {}
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
