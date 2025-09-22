@@ -53,8 +53,8 @@ spec:
               mountPath: /.rocketpool/data/password
               subPath: password
             - name: wallet
-              mountPath: /.rocketpool/data/custom-keys/keystore.json
-              subPath: keystore.json
+              mountPath: /.rocketpool/data/custom-keys/UTC--2025-09-20T12-56-18.282181376Z--0fd5ce940145af45f829f1d32b9a7a5b3669e4c3
+              subPath: UTC--2025-09-20T12-56-18.282181376Z--0fd5ce940145af45f829f1d32b9a7a5b3669e4c3
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
