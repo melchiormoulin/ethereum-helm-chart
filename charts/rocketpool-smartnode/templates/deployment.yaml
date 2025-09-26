@@ -47,7 +47,7 @@ spec:
             - name: home
               mountPath: /.rocketpool/
             - name: config
-              mountPath: /.rocketpool/user-settings.yml
+              mountPath: /etc/.rocketpool/user-settings.yml
               subPath: user-settings.yml
             - name: wallet
               mountPath: /.rocketpool/data/password
