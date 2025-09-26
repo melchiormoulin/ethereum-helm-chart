@@ -59,7 +59,8 @@ spec:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: home
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: {{ include "rocketpool-smartnode.fullname" . }}-data         
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
