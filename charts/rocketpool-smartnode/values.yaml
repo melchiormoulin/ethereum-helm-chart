@@ -42,7 +42,7 @@ persistence:
   enabled: true
   storageClass: "local-storage-ssd"   # adapt to your default class
   accessModes: ["ReadWriteOnce"]
-  size: 10Gi
+  size: 50Gi
   existingClaim: ""                   # if you want to bind an existing PVC
   volumeMode: "Filesystem"             # or "Block" if you use raw block storage
   volumeName: "rocketpool-data"       # specify a particular PV to bind to
