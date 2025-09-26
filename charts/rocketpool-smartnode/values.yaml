@@ -45,7 +45,7 @@ persistence:
   size: 50Gi
   existingClaim: ""                   # if you want to bind an existing PVC
   volumeMode: "Filesystem"             # or "Block" if you use raw block storage
-  volumeName: "rocketpool-data"       # specify a particular PV to bind to
+  volumeName: "rocketpool-smartnode"       # specify a particular PV to bind to
   mountPath: /root/.rocketpool  # where to mount the volume in the container
 wallet:
   enabled: true
