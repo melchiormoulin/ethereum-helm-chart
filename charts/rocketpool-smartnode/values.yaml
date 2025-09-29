@@ -37,9 +37,7 @@ persistence:
   volumeMode: "Filesystem"             # or "Block" if you use raw block storage
   volumeName: "rocketpool-smartnode"       # specify a particular PV to bind to
   mountPath: /root/.rocketpool  # where to mount the volume in the container
-wallet:
-  enabled: true
-  existingSecret: ""      # if you already store secrets elsewhere
+
 # --- Service ---
 service:
   type: ClusterIP
