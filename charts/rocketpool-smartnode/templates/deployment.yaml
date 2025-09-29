@@ -28,10 +28,6 @@ spec:
           command: {{- toYaml .Values.command | nindent 12 }}
           args: {{- toYaml .Values.args | nindent 12 }}
           env:
-{{- range .Values.wallet.extraEnv }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
-{{- end }}
           ports:
 {{- if .Values.service.ports.http.enabled }}
             - name: http
