@@ -43,7 +43,7 @@ spec:
             - name: home
               mountPath: /root/.rocketpool/
             - name: config
-              mountPath: /.rocketpool/user-settings.yml
+              mountPath: /root/.rocketpool/user-settings.yml
               subPath: user-settings.yml
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
