@@ -167,8 +167,8 @@ data:
       ccHttpUrl: ""
       consensusClient: nimbus
       ecHttpUrl: ""
-      validatorRestartCommand: ~/.rocketpool/restart-vc.sh
-      validatorStopCommand: ~/.rocketpool/stop-validator.sh
+      validatorRestartCommand: /root/.rocketpool/restart-vc.sh
+      validatorStopCommand: /root/.rocketpool/stop-validator.sh
     nethermind:
       additionalFlags: ""
       additionalModules: ""
@@ -223,7 +223,7 @@ data:
       isNative: "false"
       nodeMetricsPort: "9102"
       reconnectDelay: 60s
-      rpDir: ~/.rocketpool
+      rpDir: /root/.rocketpool
       useFallbackClients: "false"
       vcMetricsPort: "9101"
       version: v1.17.3
@@ -231,7 +231,7 @@ data:
     smartnode:
       archiveECUrl: ""
       autoInitVPThreshold: "5"
-      dataPath: ~/.rocketpool/data
+      dataPath: /root/.rocketpool/data
       distributeThreshold: "1"
       manualMaxFee: "0"
       minipoolStakeGasThreshold: "150"
