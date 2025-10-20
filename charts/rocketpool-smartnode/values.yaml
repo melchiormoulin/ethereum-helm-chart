@@ -1,7 +1,7 @@
 # --- Image & runtime ---
 image:
   repository: rocketpool/smartnode
-  tag: v1.17.3   
+  tag: v1.18.1   
   pullPolicy: IfNotPresent
 
 replicaCount: 1
