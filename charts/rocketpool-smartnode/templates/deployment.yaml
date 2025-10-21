@@ -28,6 +28,8 @@ spec:
           command: {{- toYaml .Values.command | nindent 12 }}
           args: {{- toYaml .Values.args | nindent 12 }}
           env:
+            - name: HOME
+              value: /root
           ports:
 {{- if .Values.service.ports.http.enabled }}
             - name: http
