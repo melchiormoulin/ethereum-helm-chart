@@ -48,14 +48,7 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Services
-service:
-  p2p:
-    type: ClusterIP
-  api:
-    type: ClusterIP
-  metrics:
-    type: ClusterIP
+# Se
 
 # ServiceMonitor
 serviceMonitor:

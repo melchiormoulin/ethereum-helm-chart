@@ -6,17 +6,19 @@ metadata:
     {{- include "geth.labels" . | nindent 4 }}
     app.kubernetes.io/component: geth
 spec:
-  type: {{ .Values.service.p2p.type }}
+  type: NodePort
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
   ports:
     - name: p2p-tcp
       port: {{ .Values.p2p.port }}
+      nodePort: {{ .Values.p2p.port }}
       targetPort: p2p-tcp
       protocol: TCP
     - name: p2p-udp
       port: {{ .Values.p2p.port }}
+      nodePort: {{ .Values.p2p.port }}
       targetPort: p2p-udp
       protocol: UDP
 ---
@@ -29,7 +31,7 @@ metadata:
     {{- include "geth.labels" . | nindent 4 }}
     app.kubernetes.io/component: geth
 spec:
-  type: {{ .Values.service.rpc.type }}
+  type: ClusterIP
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
@@ -55,7 +57,7 @@ metadata:
     {{- include "geth.labels" . | nindent 4 }}
     app.kubernetes.io/component: geth
 spec:
-  type: {{ .Values.service.engine.type }}
+  type: ClusterIP
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}
@@ -75,7 +77,7 @@ metadata:
     {{- include "geth.labels" . | nindent 4 }}
     app.kubernetes.io/component: geth
 spec:
-  type: {{ .Values.service.metrics.type }}
+  type: ClusterIP
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "geth.selectorLabels" (list . "geth") | nindent 4 }}

@@ -52,8 +52,6 @@ affinity: {}
 
 # Services
 service:
-  p2p:
-    type: ClusterIP
   rpc:
     type: ClusterIP
   engine:

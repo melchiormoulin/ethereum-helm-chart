@@ -6,16 +6,18 @@ metadata:
     {{- include "lighthouse.labels" . | nindent 4 }}
     app.kubernetes.io/component: lighthouse
 spec:
-  type: {{ .Values.service.p2p.type }}
+  type: NodePort
   selector:
     {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
   ports:
     - name: p2p-tcp
       port: {{ .Values.p2p.port }}
+      nodePort: {{ .Values.p2p.port }}
       targetPort: p2p-tcp
       protocol: TCP
     - name: p2p-udp
       port: {{ .Values.p2p.port }}
+      nodePort: {{ .Values.p2p.port }}
       targetPort: p2p-udp
       protocol: UDP
 ---
@@ -28,7 +30,7 @@ metadata:
     {{- include "lighthouse.labels" . | nindent 4 }}
     app.kubernetes.io/component: lighthouse
 spec:
-  type: {{ .Values.service.api.type }}
+  type: ClusterIP
   selector:
     {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
   ports:
@@ -47,7 +49,7 @@ metadata:
     {{- include "lighthouse.labels" . | nindent 4 }}
     app.kubernetes.io/component: lighthouse
 spec:
-  type: {{ .Values.service.metrics.type }}
+  type: ClusterIP
   selector:
     {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
   ports:
