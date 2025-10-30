@@ -5,7 +5,7 @@ fullnameOverride: ""
 # Image settings
 image:
   repository: sigp/lighthouse
-  tag: latest
+  tag: v7.1.0
   pullPolicy: IfNotPresent
 
 # Network
