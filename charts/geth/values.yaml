@@ -50,14 +50,6 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Services
-service:
-  rpc:
-    type: ClusterIP
-  engine:
-    type: ClusterIP
-  metrics:
-    type: ClusterIP
 
 # ServiceMonitor
 serviceMonitor:
