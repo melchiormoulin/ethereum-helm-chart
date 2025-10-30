@@ -30,7 +30,7 @@ api:
 
 # P2P
 p2p:
-  port: 9000
+  port: 30304
 
 # Checkpoint sync
 checkpointSyncUrl: ""
