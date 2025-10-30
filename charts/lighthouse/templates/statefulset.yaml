@@ -28,7 +28,7 @@ spec:
             - beacon_node
             - "--network={{ .Values.network }}"
             - "--datadir=/var/lib/lighthouse"
-            - "--discovery-port={{ .Values.p2p.port }}"
+            - "--port={{ .Values.p2p.port }}"
             - "--quic-port={{ .Values.quic.port }}"
             {{- if .Values.execution.enabled }}
             {{- $defaultEndpoint := printf "http://el-geth-engine:%d" (int .Values.execution.enginePort) -}}
