@@ -32,6 +32,8 @@ api:
 p2p:
   port: 30304
 
+quic:
+  port: 30305
 # Checkpoint sync
 checkpointSyncUrl: ""
 
