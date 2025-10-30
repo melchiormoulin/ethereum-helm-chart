@@ -5,7 +5,7 @@ fullnameOverride: ""
 # Image settings
 image:
   repository: ethereum/client-go
-  tag: stable
+  tag: v1.16.5
   pullPolicy: IfNotPresent
 
 # Network and sync
