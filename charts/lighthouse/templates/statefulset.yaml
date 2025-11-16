@@ -28,7 +28,15 @@ spec:
             - beacon_node
             - "--network={{ .Values.network }}"
             - "--datadir=/var/lib/lighthouse"
-            - "--port=9000"
+            - "--enr-address=82.216.225.7"
+            - "--discovery-port={{ .Values.p2p.port }}"
+            - "--enr-udp-port={{ .Values.p2p.port }}"
+            - "--enr-tcp-port={{ .Values.p2p.port }}"
+            - "--port={{ .Values.p2p.port }}"
+            - "--quic-port={{ .Values.quic.port }}"
+            - "--enr-quic-port={{ .Values.quic.port }}"
+            - "--disable-enr-auto-update"
+            - "--disable-upnp"
             {{- if .Values.execution.enabled }}
             {{- $defaultEndpoint := printf "http://el-geth-engine:%d" (int .Values.execution.enginePort) -}}
             {{- $endpoint := default $defaultEndpoint .Values.execution.endpoint -}}
@@ -56,11 +64,8 @@ spec:
             - name: p2p-tcp
               containerPort: {{ .Values.p2p.port }}
               protocol: TCP
-            - name: p2p-udp
+            - name: discovery-and-quic-udp
               containerPort: {{ .Values.p2p.port }}
-              protocol: UDP
-            - name: quic-udp
-              containerPort: {{ .Values.quic.port }}
               protocol: UDP
             {{- if .Values.api.enabled }}
             - name: api
