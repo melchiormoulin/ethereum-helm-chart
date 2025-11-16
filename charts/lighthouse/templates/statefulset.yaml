@@ -59,7 +59,7 @@ spec:
             {{- end }}
             {{- if .Values.checkpointSyncUrl }}
             - "--checkpoint-sync-url={{ .Values.checkpointSyncUrl }}"
-            - "--purge-db"
+            - "--purge-db-force"
             {{- end }}
           ports:
             - name: p2p-tcp
