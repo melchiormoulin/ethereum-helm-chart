@@ -60,6 +60,8 @@ spec:
             {{- if .Values.checkpointSyncUrl }}
             - "--checkpoint-sync-url={{ .Values.checkpointSyncUrl }}"
             {{- end }}
+            - "--logfile-max-number=0"
+            - "--logfile-max-size=0"
           ports:
             - name: p2p-tcp
               containerPort: {{ .Values.p2p.port }}
