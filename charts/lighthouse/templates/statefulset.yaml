@@ -35,6 +35,9 @@ spec:
             - "--port={{ .Values.p2p.port }}"
             - "--quic-port={{ .Values.quic.port }}"
             - "--enr-quic-port={{ .Values.quic.port }}"
+            - "--disable-enr-auto-update"
+            - "--disable-upnp"
+            - "--disable-nat"
             {{- if .Values.execution.enabled }}
             {{- $defaultEndpoint := printf "http://el-geth-engine:%d" (int .Values.execution.enginePort) -}}
             {{- $endpoint := default $defaultEndpoint .Values.execution.endpoint -}}
