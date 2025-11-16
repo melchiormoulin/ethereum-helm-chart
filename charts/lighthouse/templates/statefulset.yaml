@@ -62,6 +62,7 @@ spec:
             {{- end }}
             - "--logfile-max-number=0"
             - "--logfile-max-size=0"
+            - "--allow-insecure-genesis-sync"
           ports:
             - name: p2p-tcp
               containerPort: {{ .Values.p2p.port }}
