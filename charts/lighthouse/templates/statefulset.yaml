@@ -64,8 +64,11 @@ spec:
             - name: p2p-tcp
               containerPort: {{ .Values.p2p.port }}
               protocol: TCP
-            - name: discovery-and-quic-udp
+            - name: p2p-udp
               containerPort: {{ .Values.p2p.port }}
+              protocol: UDP
+            - name: quic-udp
+              containerPort: {{ .Values.quic.port }}
               protocol: UDP
             {{- if .Values.api.enabled }}
             - name: api
