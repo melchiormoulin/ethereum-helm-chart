@@ -7,6 +7,8 @@ metadata:
     app.kubernetes.io/component: lighthouse
 spec:
   type: NodePort
+  internalTrafficPolicy: Local
+  externalTrafficPolicy: Local
   selector:
     {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 4 }}
   ports:
