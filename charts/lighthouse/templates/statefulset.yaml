@@ -18,6 +18,15 @@ spec:
         {{- include "lighthouse.labels" . | nindent 8 }}
         {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 8 }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        allowPrivilegeEscalation: true
+        capabilities:
+          add:
+            - NET_BIND_SERVICE
+            - NET_ADMIN
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       enableServiceLinks: false # avoid LIGHTHOUSE env var issues if helmrelease name is lighthouse.
