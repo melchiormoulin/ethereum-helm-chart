@@ -18,6 +18,8 @@ spec:
         {{- include "lighthouse.labels" . | nindent 8 }}
         {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 8 }}
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       enableServiceLinks: false # avoid LIGHTHOUSE env var issues if helmrelease name is lighthouse.
       containers:
         - name: lighthouse
