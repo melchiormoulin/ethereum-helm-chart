@@ -24,9 +24,7 @@ spec:
       containers:
         - name: lighthouse
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
+            runAsUser: 0
             allowPrivilegeEscalation: true
             capabilities:
               add:
