@@ -29,6 +29,7 @@ spec:
             - "--network={{ .Values.network }}"
             - "--datadir=/var/lib/lighthouse"
             - "--enr-address=82.216.225.7"
+            - "--listen-address=0.0.0.0"
             - "--discovery-port={{ .Values.p2p.port }}"
             - "--enr-udp-port={{ .Values.p2p.port }}"
             - "--enr-tcp-port={{ .Values.p2p.port }}"
