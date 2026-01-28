@@ -1,8 +1,61 @@
 Setup ethereum validator node
 
-1. create jwt token 
+## JWT Token Setup
+
+### Option 1: Using HashiCorp Vault Injector (Default)
+
+The charts are configured to use Vault injector by default.
+
+Prerequisites:
+- HashiCorp Vault installed and configured
+- Vault Agent Injector deployed in your cluster
+- Kubernetes auth method configured in Vault
+
+1. Store the JWT token in Vault:
+```bash
+# Generate and store JWT in Vault
+vault kv put secret/ethereum/jwt jwt=$(openssl rand -hex 32)
 ```
-kubectl create secret generic jwt-token  --dry-run=client --from-literal=jwt=$(openssl rand -hex 32) -o yaml > jwt-secret.yaml
+
+2. Create a Vault policy for the JWT secret:
+```hcl
+# ethereum-jwt-policy.hcl
+path "secret/data/ethereum/jwt" {
+  capabilities = ["read"]
+}
+```
+
+```bash
+vault policy write ethereum-jwt ethereum-jwt-policy.hcl
+```
+
+3. Create a Vault role for Kubernetes authentication:
+```bash
+vault write auth/kubernetes/role/ethereum-node \
+    bound_service_account_names=default \
+    bound_service_account_namespaces=ethereum \
+    policies=ethereum-jwt \
+    ttl=1h
+```
+
+The Vault injector will automatically inject the JWT token into the pods at `/vault/secrets/jwt`.
+
+### Option 2: Using Kubernetes Secret
+
+To use native Kubernetes secrets instead of Vault, disable Vault in your values:
+
+```yaml
+jwt:
+  enabled: true
+  existingSecret: "jwt-token"
+  vault:
+    enabled: false
+```
+
+Then create the JWT token as a Kubernetes secret:
+```bash
+kubectl create secret generic jwt-token --dry-run=client --from-literal=jwt=$(openssl rand -hex 32) -o yaml > jwt-secret.yaml
+kubectl apply -f jwt-secret.yaml
 ```
 
 2. create smartnode config

@@ -17,6 +17,19 @@ spec:
       labels:
         {{- include "geth.labels" . | nindent 8 }}
         {{- include "geth.selectorLabels" (list . "geth") | nindent 8 }}
+      {{- if and .Values.jwt.enabled .Values.jwt.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: {{ .Values.jwt.vault.agentInjectStatus | quote }}
+        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.jwt.vault.secretPath | quote }}
+        vault.hashicorp.com/agent-inject-template-jwt: |
+          {{`{{- with secret "`}}{{ .Values.jwt.vault.secretPath }}{{`" -}}`}}
+          {{`{{ .Data.data.`}}{{ .Values.jwt.vault.secretKey }}{{` }}`}}
+          {{`{{- end -}}`}}
+        vault.hashicorp.com/role: {{ .Values.jwt.vault.role | quote }}
+        vault.hashicorp.com/agent-pre-populate: {{ .Values.jwt.vault.agentPrePopulate | quote }}
+        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.jwt.vault.agentPrePopulateOnly | quote }}
+      {{- end }}
     spec:
       enableServiceLinks: false # avoid GETH env var issues if helmrelease name is geth.
       containers:
@@ -32,7 +45,11 @@ spec:
             - "--authrpc.addr=0.0.0.0"
             - "--authrpc.port={{ .Values.authrpc.port }}"
             - "--authrpc.vhosts=*"
+            {{- if .Values.jwt.vault.enabled }}
+            - "--authrpc.jwtsecret=/vault/secrets/jwt"
+            {{- else }}
             - "--authrpc.jwtsecret=/secrets/jwt"
+            {{- end }}
             {{- end }}
             {{- if .Values.metrics.enabled }}
             - "--metrics"
@@ -81,7 +98,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/geth
-            {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+            {{- if and .Values.jwt.enabled .Values.authrpc.enabled (not .Values.jwt.vault.enabled) }}
             - name: jwt
               mountPath: /secrets
               readOnly: true
@@ -102,7 +119,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if and .Values.jwt.enabled .Values.authrpc.enabled }}
+      {{- if and .Values.jwt.enabled .Values.authrpc.enabled (not .Values.jwt.vault.enabled) }}
         - name: jwt
           secret:
             secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}

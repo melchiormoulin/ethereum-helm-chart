@@ -63,5 +63,16 @@ serviceMonitor:
 # JWT for Engine API authentication
 jwt:
   enabled: true
+  # Native Kubernetes secret (only used when vault.enabled is false)
   existingSecret: "jwt-token"
   existingSecretKey: jwt
+  # Vault injector configuration (default)
+  vault:
+    enabled: true
+    secretPath: "secret/data/ethereum/jwt"
+    secretKey: "jwt"
+    role: "ethereum-node"
+    # Vault agent injector annotations
+    agentInjectStatus: "update"
+    agentPrePopulate: "true"
+    agentPrePopulateOnly: "false"
