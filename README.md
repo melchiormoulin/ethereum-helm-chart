@@ -11,26 +11,21 @@ Prerequisites:
 - Vault Agent Injector deployed in your cluster
 - Kubernetes auth method configured in Vault
 
-1. Store the JWT token in Vault:
+Run the setup script to configure Vault:
 ```bash
-# Generate and store JWT in Vault
+cd vault/
+./setup.sh
+```
+
+Or manually:
+```bash
+# 1. Create policy
+vault policy write ethereum-jwt vault/ethereum-jwt-policy.hcl
+
+# 2. Store JWT token
 vault kv put secret/ethereum/jwt jwt=$(openssl rand -hex 32)
-```
 
-2. Create a Vault policy for the JWT secret:
-```hcl
-# ethereum-jwt-policy.hcl
-path "secret/data/ethereum/jwt" {
-  capabilities = ["read"]
-}
-```
-
-```bash
-vault policy write ethereum-jwt ethereum-jwt-policy.hcl
-```
-
-3. Create a Vault role for Kubernetes authentication:
-```bash
+# 3. Create Kubernetes auth role
 vault write auth/kubernetes/role/ethereum-node \
     bound_service_account_names=default \
     bound_service_account_namespaces=ethereum \
