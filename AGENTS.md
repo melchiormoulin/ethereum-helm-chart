@@ -54,7 +54,7 @@ Ethereum execution layer client.
 **Important values:**
 - `network`: Ethereum network (mainnet, sepolia, holesky)
 - `syncMode`: Sync mode (snap, full, light)
-- `jwt.vault.enabled`: Use Vault for JWT (default: false)
+- `jwt.vault.enabled`: Use Vault for JWT (default: true)
 - `persistence.size`: Storage size (default: 200Gi)
 
 ### 2. Lighthouse (`charts/lighthouse/`)
@@ -70,7 +70,7 @@ Ethereum consensus layer client (beacon node).
 **Important values:**
 - `network`: Ethereum network (mainnet, sepolia, holesky)
 - `execution.endpoint`: Geth Engine API endpoint
-- `jwt.vault.enabled`: Use Vault for JWT (default: false)
+- `jwt.vault.enabled`: Use Vault for JWT (default: true)
 - `persistence.size`: Storage size (default: 100Gi)
 - `checkpointSyncUrl`: Optional checkpoint sync URL for fast sync
 
@@ -86,20 +86,20 @@ Rocketpool staking infrastructure.
 
 ## JWT Authentication
 
-Both Geth and Lighthouse use JWT tokens for Engine API authentication. By default, the charts use Kubernetes secrets.
+Both Geth and Lighthouse use JWT tokens for Engine API authentication. By default, the charts use HashiCorp Vault injector to mount the JWT token.
 
-**Default configuration:**
-- `jwt.existingSecret`: Name of the Kubernetes secret containing the JWT token
-- `jwt.existingSecretKey`: Key within the secret (default: `jwt`)
+**Default Vault configuration:**
+- Secret path: `secret/data/ethereum/jwt`
+- Secret key: `jwt`
+- Vault role: `ethereum-node`
+- Mount path: `/vault/secrets/jwt`
 
-**To use HashiCorp Vault instead:**
+**To use Kubernetes secrets instead:**
 ```yaml
 jwt:
   vault:
-    enabled: true
-    secretPath: "secret/data/ethereum/jwt"
-    secretKey: "jwt"
-    role: "ethereum-node"
+    enabled: false
+  existingSecret: "jwt-token"
 ```
 
 ## Service Names
