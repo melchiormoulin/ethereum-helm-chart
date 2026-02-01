@@ -68,9 +68,9 @@ jwt:
   existingSecret: ""
   existingSecretKey: jwt
   value: ""
-  # Vault injector configuration (default)
+  # Vault injector configuration
   vault:
-    enabled: true
+    enabled: false
     secretPath: "secret/data/ethereum/jwt"
     secretKey: "jwt"
     role: "ethereum-node"

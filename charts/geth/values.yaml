@@ -66,9 +66,9 @@ jwt:
   # Native Kubernetes secret (only used when vault.enabled is false)
   existingSecret: "jwt-token"
   existingSecretKey: jwt
-  # Vault injector configuration (default)
+  # Vault injector configuration
   vault:
-    enabled: true
+    enabled: false
     secretPath: "secret/data/ethereum/jwt"
     secretKey: "jwt"
     role: "ethereum-node"
