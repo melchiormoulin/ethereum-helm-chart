@@ -78,3 +78,5 @@ jwt:
     agentInjectStatus: "update"
     agentPrePopulate: "true"
     agentPrePopulateOnly: "false"
+    # Kubernetes secret (in same namespace) containing ca.crt for Vault TLS verification
+    tlsSecret: ""

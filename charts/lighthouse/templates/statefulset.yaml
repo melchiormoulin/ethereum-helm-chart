@@ -29,6 +29,9 @@ spec:
         vault.hashicorp.com/role: {{ .Values.jwt.vault.role | quote }}
         vault.hashicorp.com/agent-pre-populate: {{ .Values.jwt.vault.agentPrePopulate | quote }}
         vault.hashicorp.com/agent-pre-populate-only: {{ .Values.jwt.vault.agentPrePopulateOnly | quote }}
+        {{- if .Values.jwt.vault.tlsSecret }}
+        vault.hashicorp.com/tls-secret: {{ .Values.jwt.vault.tlsSecret | quote }}
+        {{- end }}
       {{- end }}
     spec:
       enableServiceLinks: false # avoid LIGHTHOUSE env var issues if helmrelease name is lighthouse.
