@@ -41,7 +41,7 @@ spec:
             - --metrics
             - --metrics-address=0.0.0.0
             - --metrics-port={{ .Values.service.ports.metrics.targetPort }}
-            - --doppelganger-detection=true
+            - --enable-doppelganger-protection
 {{- with .Values.args }}
 {{ toYaml . | nindent 12 }}
 {{- end }}
