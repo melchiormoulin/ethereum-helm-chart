@@ -24,8 +24,8 @@ affinity: {}
 
 
 # Smartnode daemon (rocketpoold) entrypoint.
-command: ["/usr/bin/rocketpool-daemon"]
-args: ["--user-dir", "/root/.rocketpool", "--ip", "0.0.0.0", "--port", "8080"]
+command: ["/go/bin/rocketpool"]
+args: ["--settings=/root/.rocketpool/user-settings.yml", "node"]
 
 clients:
   executionHttpUrl: http://el-geth-rpc:8545
