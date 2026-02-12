@@ -1,0 +1,5 @@
+apiVersion: v2
+name: rocketpool-validator
+description: Deploy Lighthouse validator client for Rocket Pool smartnode
+type: application
+version: 0.1.0

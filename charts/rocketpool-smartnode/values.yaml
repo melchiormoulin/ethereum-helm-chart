@@ -1,8 +1,11 @@
 # --- Image & runtime ---
 image:
   repository: rocketpool/smartnode
-  tag: v1.18.1   
+  tag: v1.19.0
   pullPolicy: IfNotPresent
+
+network: hoodi
+smartnodeVersion: v1.19.0
 
 replicaCount: 1
 podAnnotations: {}
@@ -20,10 +23,25 @@ affinity: {}
 
 
 
-# Optionally override entrypoint if your image uses a different start command.
-# Default tries to run the Smartnode in foreground so K8s can manage it.
-command: ["rocketpool"]
-args: [ "--settings=/etc/.rocketpool/user-settings.yml","node" ]
+# Smartnode daemon (rocketpoold) entrypoint.
+command: ["/usr/bin/rocketpool-daemon"]
+args: ["--user-dir", "/root/.rocketpool", "--ip", "0.0.0.0", "--port", "8080"]
+
+clients:
+  executionHttpUrl: http://el-geth-rpc:8545
+  executionWsUrl: ws://el-geth-rpc:8546
+  beaconHttpUrl: http://cl-lighthouse-api:5052
+
+vault:
+  enabled: true
+  role: ethereum-node
+  agentInjectStatus: update
+  agentPrePopulate: "true"
+  agentPrePopulateOnly: "false"
+  tlsSecret: ""
+  passwordSecretPath: secret/data/ethereum/rocketpool
+  passwordSecretKey: password
+  passwordFilePath: /root/.rocketpool/data/password
 
 
 
@@ -44,11 +62,10 @@ service:
   annotations: {}
   labels: {}
   ports:
-    # expose any HTTP status / metrics your Smartnode uses
-    http:
+    api:
       enabled: true
-      port: 9101
-      targetPort: 9101
+      port: 8080
+      targetPort: 8080
     metrics:
       enabled: true
       port: 9102

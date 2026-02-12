@@ -16,11 +16,34 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+{{ with .Values.podLabels }}
+{{ toYaml . | nindent 8 }}
+{{ end }}
+{{ if or .Values.vault.enabled .Values.podAnnotations }}
       annotations:
-{{- if .Values.podAnnotations }}
+{{ if .Values.vault.enabled }}
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: {{ .Values.vault.agentInjectStatus | quote }}
+        vault.hashicorp.com/agent-inject-secret-rocketpool-password: {{ .Values.vault.passwordSecretPath | quote }}
+        vault.hashicorp.com/agent-inject-template-rocketpool-password: |
+          {{`{{- with secret "`}}{{ .Values.vault.passwordSecretPath }}{{`" -}}`}}
+          {{`{{ .Data.data.`}}{{ .Values.vault.passwordSecretKey }}{{` }}`}}
+          {{`{{- end -}}`}}
+        vault.hashicorp.com/agent-inject-file-rocketpool-password: {{ .Values.vault.passwordFilePath | quote }}
+        vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
+        vault.hashicorp.com/agent-pre-populate: {{ .Values.vault.agentPrePopulate | quote }}
+        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.vault.agentPrePopulateOnly | quote }}
+{{ if .Values.vault.tlsSecret }}
+        vault.hashicorp.com/tls-secret: {{ .Values.vault.tlsSecret | quote }}
+        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
+{{ end }}
+{{ end }}
+{{ if .Values.podAnnotations }}
 {{ toYaml .Values.podAnnotations | nindent 8 }}
-{{- end }}
+{{ end }}
+{{ end }}
     spec:
+      enableServiceLinks: false
       containers:
         - name: smartnode
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -31,34 +54,44 @@ spec:
             - name: HOME
               value: /root
           ports:
-{{- if .Values.service.ports.http.enabled }}
-            - name: http
-              containerPort: {{ .Values.service.ports.http.targetPort }}
+{{ if .Values.service.ports.api.enabled }}
+            - name: api
+              containerPort: {{ .Values.service.ports.api.targetPort }}
               protocol: TCP
-{{- end }}
-{{- if .Values.service.ports.metrics.enabled }}
+{{ end }}
+{{ if .Values.service.ports.metrics.enabled }}
             - name: metrics
               containerPort: {{ .Values.service.ports.metrics.targetPort }}
               protocol: TCP
-{{- end }}
+{{ end }}
           volumeMounts:
             - name: home
-              mountPath: /.rocketpool/
+              mountPath: {{ .Values.persistence.mountPath }}
             - name: config
-              mountPath: /etc/.rocketpool/user-settings.yml
+              mountPath: /root/.rocketpool/user-settings.yml
               subPath: user-settings.yml
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: home
           persistentVolumeClaim:
-            claimName: {{ include "rocketpool-smartnode.fullname" . }}-data         
+{{ if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+{{ else }}
+            claimName: {{ include "rocketpool-smartnode.fullname" . }}-data
+{{ end }}
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
+{{ with .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | nindent 8 }}
+{{ toYaml . | nindent 8 }}
+{{ end }}
+{{ with .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | nindent 8 }}
+{{ toYaml . | nindent 8 }}
+{{ end }}
+{{ with .Values.affinity }}
       affinity:
-{{ toYaml .Values.affinity | nindent 8 }}
+{{ toYaml . | nindent 8 }}
+{{ end }}

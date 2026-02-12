@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rocketpool-validator.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "rocketpool-validator.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rocketpool-validator.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "rocketpool-validator.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{- with .Values.podLabels }}
+{{ toYaml . | nindent 8 }}
+{{- end }}
+{{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: validator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: {{- toYaml .Values.command | nindent 12 }}
+          args:
+            - vc
+            - --network={{ .Values.network }}
+            - --datadir={{ .Values.validatorDataDir }}
+            - --beacon-nodes={{ .Values.beaconNodeUrl }}
+            - --http
+            - --http-address=0.0.0.0
+            - --http-port={{ .Values.service.ports.api.targetPort }}
+            - --metrics
+            - --metrics-address=0.0.0.0
+            - --metrics-port={{ .Values.service.ports.metrics.targetPort }}
+            - --doppelganger-detection=true
+{{- with .Values.args }}
+{{ toYaml . | nindent 12 }}
+{{- end }}
+          ports:
+{{- if .Values.service.ports.api.enabled }}
+            - name: api
+              containerPort: {{ .Values.service.ports.api.targetPort }}
+              protocol: TCP
+{{- end }}
+{{- if .Values.service.ports.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.service.ports.metrics.targetPort }}
+              protocol: TCP
+{{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+          resources:
+{{ toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+{{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+{{- else }}
+            claimName: {{ include "rocketpool-validator.fullname" . }}-data
+{{- end }}
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+{{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+{{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | nindent 8 }}
+{{- end }}

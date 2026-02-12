@@ -1,0 +1,48 @@
+image:
+  repository: sigp/lighthouse
+  tag: v8.0.0
+  pullPolicy: IfNotPresent
+
+network: hoodi
+beaconNodeUrl: http://cl-lighthouse-api:5052
+validatorDataDir: /root/.rocketpool/data/validators/lighthouse
+
+replicaCount: 1
+podAnnotations: {}
+podLabels: {}
+
+command: ["lighthouse"]
+args: []
+
+persistence:
+  enabled: true
+  accessModes: ["ReadWriteOnce"]
+  size: 50Gi
+  storageClass: ""
+  existingClaim: ""
+  mountPath: /root/.rocketpool
+
+service:
+  type: ClusterIP
+  annotations: {}
+  labels: {}
+  ports:
+    api:
+      enabled: true
+      port: 5062
+      targetPort: 5062
+    metrics:
+      enabled: true
+      port: 5064
+      targetPort: 5064
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels: {}

@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "rocketpool-smartnode.fullname" . }}
+  name: {{ include "rocketpool-validator.fullname" . }}
   labels:
 {{- if .Values.serviceMonitor.additionalLabels }}
 {{ toYaml .Values.serviceMonitor.additionalLabels | nindent 4 }}
@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "rocketpool-smartnode.name" . }}
+      app.kubernetes.io/name: {{ include "rocketpool-validator.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   namespaceSelector:
     matchNames:

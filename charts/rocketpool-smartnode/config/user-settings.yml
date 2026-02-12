@@ -70,14 +70,14 @@ exporter:
   containerTag: prom/node-exporter:v1.9.0
   enableRootFs: "false"
 externalExecution:
-  httpUrl: http://el-geth-rpc:8545
-  wsUrl: ws://el-geth-rpc:8546
+  httpUrl: {{ .Values.clients.executionHttpUrl | quote }}
+  wsUrl: {{ .Values.clients.executionWsUrl | quote }}
 externalLighthouse:
   additionalVcFlags: ""
-  containerTag: sigp/lighthouse:v7.1.0
+  containerTag: sigp/lighthouse:v8.0.0
   doppelgangerDetection: "true"
   graffiti: ""
-  httpUrl: http://cl-lighthouse-api:5052
+  httpUrl: {{ .Values.clients.beaconHttpUrl | quote }}
   suggestedBlockGasLimit: ""
 externalLodestar:
   additionalVcFlags: ""
@@ -156,10 +156,10 @@ mevBoost:
   ultrasoundFilteredEnabled: "false"
 native:
   ccHttpUrl: ""
-  consensusClient: nimbus
+  consensusClient: lighthouse
   ecHttpUrl: ""
-  validatorRestartCommand: ~/.rocketpool/restart-vc.sh
-  validatorStopCommand: ~/.rocketpool/stop-validator.sh
+  validatorRestartCommand: /root/.rocketpool/restart-vc.sh
+  validatorStopCommand: /root/.rocketpool/stop-validator.sh
 nethermind:
   additionalFlags: ""
   additionalModules: ""
@@ -200,7 +200,7 @@ reth:
   maxPeers: "100"
 root:
   bnMetricsPort: "9100"
-  consensusClient: nimbus
+  consensusClient: lighthouse
   consensusClientMode: external
   ecMetricsPort: "9105"
   enableBitflyNodeMetrics: "false"
@@ -214,19 +214,19 @@ root:
   isNative: "false"
   nodeMetricsPort: "9102"
   reconnectDelay: 60s
-  rpDir: ~/.rocketpool
+  rpDir: /root/.rocketpool
   useFallbackClients: "false"
   vcMetricsPort: "9101"
-  version: v1.17.3
+  version: {{ .Values.smartnodeVersion | quote }}
   watchtowerMetricsPort: "9104"
 smartnode:
   archiveECUrl: ""
   autoInitVPThreshold: "5"
-  dataPath: ~/.rocketpool/data
+  dataPath: /root/.rocketpool/data
   distributeThreshold: "1"
   manualMaxFee: "0"
   minipoolStakeGasThreshold: "150"
-  network: testnet
+  network: {{ .Values.network | quote }}
   priceBalanceSubmissionReferenceTimestamp: "1713420000"
   priorityFee: "2"
   projectName: rocketpool
