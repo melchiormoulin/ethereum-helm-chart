@@ -31,9 +31,16 @@ This repository contains Helm charts for deploying an Ethereum validator node st
 │           │                                                 │
 │           ▼                                                 │
 │  ┌──────────────────┐                                       │
-│  │  Rocketpool      │  Staking Infrastructure               │
-│  │  Smartnode       │  - HTTP (9101)                        │
+│  │  Rocket Pool     │  Saturn Node Infrastructure            │
+│  │  Smartnode       │  - Daemon API (8080)                  │
 │  │  (Deployment)    │  - Metrics (9102)                     │
+│  └────────┬─────────┘                                       │
+│           │ shared data PVC                                  │
+│           ▼                                                 │
+│  ┌──────────────────┐                                       │
+│  │  Rocket Pool VC  │  Lighthouse Validator Client           │
+│  │  (Deployment)    │  - HTTP API (5062)                    │
+│  │                  │  - Metrics (5064)                     │
 │  └──────────────────┘                                       │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
@@ -76,13 +83,37 @@ Ethereum consensus layer client (beacon node).
 
 ### 3. Rocketpool Smartnode (`charts/rocketpool-smartnode/`)
 
-Rocketpool staking infrastructure.
+Rocket Pool Saturn smartnode daemon.
 
 **Key files:**
 - `values.yaml` - Configuration defaults
 - `templates/deployment.yaml` - Pod definition
 - `templates/configmap.yaml` - Configuration
 - `config/user-settings.yml` - Default settings
+
+**Current deployed behavior:**
+- Image/tag default: `rocketpool/smartnode:v1.19.0`
+- Entrypoint: `/go/bin/rocketpool --settings=/root/.rocketpool/user-settings.yml node`
+- Daemon API service port: `8080`
+- Metrics service port: `9102`
+- Vault-injected wallet password: `secret/data/ethereum/rocketpool` (`password` key)
+
+### 4. Rocketpool Validator (`charts/rocketpool-validator/`)
+
+Separate Lighthouse validator client for Rocket Pool Saturn.
+
+**Key files:**
+- `values.yaml` - Configuration defaults
+- `templates/deployment.yaml` - Pod definition
+- `templates/service.yaml` - Kubernetes Service
+- `templates/pvc.yaml` - PVC template (skipped when `existingClaim` is set)
+
+**Current deployed behavior:**
+- Image/tag default: `sigp/lighthouse:v8.0.0`
+- Runs `lighthouse vc` in Hoodi mode
+- Connects to beacon node at `cl-lighthouse-api:5052`
+- Validator API port: `5062`, metrics port: `5064`
+- Supports sharing the smartnode PVC via `persistence.existingClaim`
 
 ## JWT Authentication
 
@@ -93,6 +124,11 @@ Both Geth and Lighthouse use JWT tokens for Engine API authentication. By defaul
 - Secret key: `jwt`
 - Vault role: `ethereum-node`
 - Mount path: `/vault/secrets/jwt`
+
+Rocket Pool smartnode additionally uses Vault Agent for wallet password material:
+- Secret path: `secret/data/ethereum/rocketpool`
+- Secret key: `password`
+- Injected file path: `/root/.rocketpool/data/password`
 
 **To use Kubernetes secrets instead:**
 ```yaml
@@ -109,6 +145,8 @@ When deployed with default names:
 - Geth WebSocket: `el-geth-rpc:8546`
 - Geth Engine API: `el-geth-engine:8551`
 - Lighthouse API: `cl-lighthouse-api:5052`
+- Rocket Pool daemon API: `rocketpool-smartnode:8080`
+- Rocket Pool validator API: `rocketpool-validator:5062`
 
 ## Monitoring
 
