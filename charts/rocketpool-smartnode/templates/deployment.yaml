@@ -44,6 +44,18 @@ spec:
 {{ end }}
     spec:
       enableServiceLinks: false
+{{- if and .Values.walletPassword.existingSecret (not .Values.vault.enabled) }}
+      initContainers:
+        - name: copy-wallet-password
+          image: busybox:1.37
+          command: ["sh", "-c", "cp /secret/{{ .Values.walletPassword.existingSecretKey }} {{ .Values.walletPassword.filePath }}"]
+          volumeMounts:
+            - name: home
+              mountPath: {{ .Values.persistence.mountPath }}
+            - name: wallet-password
+              mountPath: /secret
+              readOnly: true
+{{- end }}
       containers:
         - name: smartnode
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -83,6 +95,11 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
+{{- if and .Values.walletPassword.existingSecret (not .Values.vault.enabled) }}
+        - name: wallet-password
+          secret:
+            secretName: {{ .Values.walletPassword.existingSecret }}
+{{- end }}
 {{ with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | nindent 8 }}

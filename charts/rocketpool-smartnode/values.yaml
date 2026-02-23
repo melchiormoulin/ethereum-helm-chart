@@ -32,8 +32,13 @@ clients:
   executionWsUrl: ws://el-geth-rpc:8546
   beaconHttpUrl: http://cl-lighthouse-api:5052
 
+walletPassword:
+  existingSecret: ""
+  existingSecretKey: password
+  filePath: /root/.rocketpool/data/password
+
 vault:
-  enabled: true
+  enabled: false
   role: ethereum-node
   agentInjectStatus: update
   agentPrePopulate: "true"
