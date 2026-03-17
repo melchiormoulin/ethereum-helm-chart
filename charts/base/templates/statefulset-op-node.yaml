@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "base.fullname" . }}-op-node
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-node
+spec:
+  serviceName: {{ include "base.fullname" . }}-op-node-p2p
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "base.selectorLabels" (list . "op-node") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "base.labels" . | nindent 8 }}
+        {{- include "base.selectorLabels" (list . "op-node") | nindent 8 }}
+      {{- if and .Values.opNode.jwt.enabled .Values.opNode.jwt.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: {{ .Values.opNode.jwt.vault.agentInjectStatus | quote }}
+        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.opNode.jwt.vault.secretPath | quote }}
+        vault.hashicorp.com/agent-inject-template-jwt: |
+          {{`{{- with secret "`}}{{ .Values.opNode.jwt.vault.secretPath }}{{`" -}}`}}
+          {{`{{ .Data.data.`}}{{ .Values.opNode.jwt.vault.secretKey }}{{` }}`}}
+          {{`{{- end -}}`}}
+        vault.hashicorp.com/role: {{ .Values.opNode.jwt.vault.role | quote }}
+        vault.hashicorp.com/agent-pre-populate: {{ .Values.opNode.jwt.vault.agentPrePopulate | quote }}
+        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.opNode.jwt.vault.agentPrePopulateOnly | quote }}
+        {{- if .Values.opNode.jwt.vault.tlsSecret }}
+        vault.hashicorp.com/tls-secret: {{ .Values.opNode.jwt.vault.tlsSecret | quote }}
+        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
+        {{- end }}
+      {{- end }}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: op-node
+          image: "{{ .Values.opNode.image.repository }}:{{ .Values.opNode.image.tag }}"
+          imagePullPolicy: {{ .Values.opNode.image.pullPolicy }}
+          args:
+            - op-node
+            - "--network=base-{{ .Values.network }}"
+            - "--l1={{ .Values.opNode.l1.rpc }}"
+            - "--l1.rpckind={{ .Values.opNode.l1.rpckind }}"
+            {{- $defaultEngineRpc := printf "http://%s-op-geth-engine:%d" (include "base.fullname" .) (int .Values.opNode.l2.enginePort) -}}
+            {{- $engineRpc := default $defaultEngineRpc .Values.opNode.l2.engineRpc }}
+            - "--l2={{ $engineRpc }}"
+            {{- if .Values.opNode.jwt.enabled }}
+            {{- if .Values.opNode.jwt.vault.enabled }}
+            - "--l2.jwt-secret=/vault/secrets/jwt"
+            {{- else }}
+            - "--l2.jwt-secret=/secrets/jwt"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.opNode.api.enabled }}
+            - "--rpc.addr=0.0.0.0"
+            - "--rpc.port={{ .Values.opNode.api.port }}"
+            {{- end }}
+            {{- if .Values.opNode.p2p.enabled }}
+            - "--p2p.listen.tcp={{ .Values.opNode.p2p.port }}"
+            - "--p2p.listen.udp={{ .Values.opNode.p2p.port }}"
+            {{- if .Values.opNode.p2p.advertiseIp }}
+            - "--p2p.advertise.ip={{ .Values.opNode.p2p.advertiseIp }}"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.opNode.metrics.enabled }}
+            - "--metrics.enabled"
+            - "--metrics.addr=0.0.0.0"
+            - "--metrics.port={{ .Values.opNode.metrics.port }}"
+            {{- end }}
+            - "--syncmode=execution-layer"
+          ports:
+            {{- if .Values.opNode.p2p.enabled }}
+            - name: p2p-tcp
+              containerPort: {{ .Values.opNode.p2p.port }}
+              protocol: TCP
+            - name: p2p-udp
+              containerPort: {{ .Values.opNode.p2p.port }}
+              protocol: UDP
+            {{- end }}
+            {{- if .Values.opNode.api.enabled }}
+            - name: api
+              containerPort: {{ .Values.opNode.api.port }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.opNode.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.opNode.metrics.port }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/op-node
+            {{- if and .Values.opNode.jwt.enabled (not .Values.opNode.jwt.vault.enabled) }}
+            - name: jwt
+              mountPath: /secrets
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.opNode.resources | nindent 12 }}
+
+      {{- with .Values.opNode.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opNode.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opNode.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if and .Values.opNode.jwt.enabled (not .Values.opNode.jwt.vault.enabled) }}
+        - name: jwt
+          secret:
+            secretName: {{ if .Values.opNode.jwt.existingSecret }}{{ .Values.opNode.jwt.existingSecret }}{{ end }}
+            items:
+              - key: {{ .Values.opNode.jwt.existingSecretKey | default "jwt" }}
+                path: jwt
+      {{- end }}
+  {{- if .Values.opNode.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.opNode.persistence.existingClaim }}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.opNode.persistence.accessModes | nindent 10 }}
+        resources:
+          requests:
+            storage: {{ .Values.opNode.persistence.size }}
+        {{- if .Values.opNode.persistence.storageClass }}
+        storageClassName: {{ .Values.opNode.persistence.storageClass }}
+        {{- end }}
+  {{- end }}

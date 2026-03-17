@@ -98,7 +98,33 @@ Rocket Pool Saturn smartnode daemon.
 - Metrics service port: `9102`
 - Vault-injected wallet password: `secret/data/ethereum/rocketpool` (`password` key)
 
-### 4. Rocketpool Validator (`charts/rocketpool-validator/`)
+### 4. Base Node (`charts/base/`)
+
+Base mainnet node (OP Stack L2).
+
+**Key files:**
+- `values.yaml` - Configuration defaults
+- `templates/statefulset-op-geth.yaml` - op-geth execution layer Pod definition
+- `templates/statefulset-op-node.yaml` - op-node rollup node Pod definition
+- `templates/services.yaml` - Kubernetes Services for both components
+- `templates/servicemonitor.yaml` - Prometheus monitoring for both components
+
+**Important values:**
+- `network`: Network preset (`mainnet`) — passed as `--network=base-<network>` to both components
+- `opGeth.image.tag`: op-geth version (default: `v1.101411.4`)
+- `opNode.image.tag`: op-node version (default: `v1.13.1`)
+- `opNode.l1.rpc`: **Required** — L1 Ethereum RPC endpoint (e.g. `http://el-geth-rpc:8545`)
+- `opNode.l1.rpckind`: L1 RPC provider kind (default: `basic`)
+- `opNode.l2.engineRpc`: op-geth Engine API URL (auto-resolved from release name when empty)
+- `opGeth.jwt.vault.enabled` / `opNode.jwt.vault.enabled`: Use Vault for JWT (default: true)
+- `opGeth.persistence.size`: op-geth storage size (default: 500Gi)
+- `opNode.persistence.size`: op-node storage size (default: 50Gi)
+
+**Current deployed behavior:**
+- op-geth: archive mode (`--gcmode=archive`), tx-pool gossip disabled (`--rollup.disabletxpoolgossip=true`)
+- op-node: execution-layer sync mode, connects to op-geth Engine API at `<release>-op-geth-engine:8551`
+
+### 5. Rocketpool Validator (`charts/rocketpool-validator/`)
 
 Separate Lighthouse validator client for Rocket Pool Saturn.
 
@@ -147,6 +173,9 @@ When deployed with default names:
 - Lighthouse API: `cl-lighthouse-api:5052`
 - Rocket Pool daemon API: `rocketpool-smartnode:8080`
 - Rocket Pool validator API: `rocketpool-validator:5062`
+- Base op-geth RPC: `<release>-base-op-geth-rpc:8545`
+- Base op-geth Engine API: `<release>-base-op-geth-engine:8551`
+- Base op-node API: `<release>-base-op-node-api:9545`
 
 ## Monitoring
 
@@ -154,3 +183,5 @@ All charts support Prometheus ServiceMonitor for metrics collection:
 - Geth metrics: port 6060, path `/debug/metrics/prometheus`
 - Lighthouse metrics: port 5054, path `/metrics`
 - Rocketpool metrics: port 9102, path `/metrics`
+- Base op-geth metrics: port 6060, path `/metrics`
+- Base op-node metrics: port 7300, path `/metrics`

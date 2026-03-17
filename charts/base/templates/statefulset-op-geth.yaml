@@ -1,0 +1,155 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+spec:
+  serviceName: {{ include "base.fullname" . }}-op-geth-p2p
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "base.selectorLabels" (list . "op-geth") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "base.labels" . | nindent 8 }}
+        {{- include "base.selectorLabels" (list . "op-geth") | nindent 8 }}
+      {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.jwt.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: {{ .Values.opGeth.jwt.vault.agentInjectStatus | quote }}
+        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.opGeth.jwt.vault.secretPath | quote }}
+        vault.hashicorp.com/agent-inject-template-jwt: |
+          {{`{{- with secret "`}}{{ .Values.opGeth.jwt.vault.secretPath }}{{`" -}}`}}
+          {{`{{ .Data.data.`}}{{ .Values.opGeth.jwt.vault.secretKey }}{{` }}`}}
+          {{`{{- end -}}`}}
+        vault.hashicorp.com/role: {{ .Values.opGeth.jwt.vault.role | quote }}
+        vault.hashicorp.com/agent-pre-populate: {{ .Values.opGeth.jwt.vault.agentPrePopulate | quote }}
+        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.opGeth.jwt.vault.agentPrePopulateOnly | quote }}
+        {{- if .Values.opGeth.jwt.vault.tlsSecret }}
+        vault.hashicorp.com/tls-secret: {{ .Values.opGeth.jwt.vault.tlsSecret | quote }}
+        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
+        {{- end }}
+      {{- end }}
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: op-geth
+          image: "{{ .Values.opGeth.image.repository }}:{{ .Values.opGeth.image.tag }}"
+          imagePullPolicy: {{ .Values.opGeth.image.pullPolicy }}
+          args:
+            - "--datadir=/var/lib/op-geth"
+            - "--{{ .Values.network }}"
+            - "--port={{ .Values.opGeth.p2p.port }}"
+            - "--op-network=base-{{ .Values.network }}"
+            {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
+            - "--authrpc.addr=0.0.0.0"
+            - "--authrpc.port={{ .Values.opGeth.authrpc.port }}"
+            - "--authrpc.vhosts=*"
+            {{- if .Values.opGeth.jwt.vault.enabled }}
+            - "--authrpc.jwtsecret=/vault/secrets/jwt"
+            {{- else }}
+            - "--authrpc.jwtsecret=/secrets/jwt"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.opGeth.http.enabled }}
+            - "--http"
+            - "--http.addr=0.0.0.0"
+            - "--http.port={{ .Values.opGeth.http.port }}"
+            - "--http.corsdomain={{ join "," .Values.opGeth.http.corsOrigins }}"
+            - "--http.vhosts={{ join "," .Values.opGeth.http.vhosts }}"
+            - "--http.api=eth,net,web3,debug,txpool,engine"
+            {{- if .Values.opGeth.http.wsEnabled }}
+            - "--ws"
+            - "--ws.addr=0.0.0.0"
+            - "--ws.port={{ .Values.opGeth.http.wsPort }}"
+            - "--ws.api=eth,net,web3,debug,txpool,engine"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.opGeth.metrics.enabled }}
+            - "--metrics"
+            - "--metrics.addr=0.0.0.0"
+            - "--metrics.port={{ .Values.opGeth.metrics.port }}"
+            {{- end }}
+            - "--rollup.disabletxpoolgossip=true"
+            - "--gcmode=archive"
+          ports:
+            - name: p2p-tcp
+              containerPort: {{ .Values.opGeth.p2p.port }}
+              protocol: TCP
+            - name: p2p-udp
+              containerPort: {{ .Values.opGeth.p2p.port }}
+              protocol: UDP
+            {{- if .Values.opGeth.http.enabled }}
+            - name: http
+              containerPort: {{ .Values.opGeth.http.port }}
+              protocol: TCP
+            {{- if .Values.opGeth.http.wsEnabled }}
+            - name: ws
+              containerPort: {{ .Values.opGeth.http.wsPort }}
+              protocol: TCP
+            {{- end }}
+            {{- end }}
+            {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
+            - name: engine
+              containerPort: {{ .Values.opGeth.authrpc.port }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.opGeth.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.opGeth.metrics.port }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/op-geth
+            {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled (not .Values.opGeth.jwt.vault.enabled) }}
+            - name: jwt
+              mountPath: /secrets
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.opGeth.resources | nindent 12 }}
+
+      {{- with .Values.opGeth.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opGeth.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opGeth.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled (not .Values.opGeth.jwt.vault.enabled) }}
+        - name: jwt
+          secret:
+            secretName: {{ if .Values.opGeth.jwt.existingSecret }}{{ .Values.opGeth.jwt.existingSecret }}{{ end }}
+            items:
+              - key: {{ .Values.opGeth.jwt.existingSecretKey | default "jwt" }}
+                path: jwt
+      {{- end }}
+  {{- if .Values.opGeth.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.opGeth.persistence.existingClaim }}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.opGeth.persistence.accessModes | nindent 10 }}
+        resources:
+          requests:
+            storage: {{ .Values.opGeth.persistence.size }}
+        {{- if .Values.opGeth.persistence.storageClass }}
+        storageClassName: {{ .Values.opGeth.persistence.storageClass }}
+        {{- end }}
+  {{- end }}

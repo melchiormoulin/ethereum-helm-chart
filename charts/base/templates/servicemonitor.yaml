@@ -1,0 +1,53 @@
+{{- if and .Values.opGeth.metrics.enabled .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+    {{- with .Values.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: op-geth
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+      path: {{ .Values.opGeth.metrics.path }}
+      relabelings:
+        {{- toYaml .Values.serviceMonitor.relabelings | nindent 8 }}
+      metricRelabelings:
+        {{- toYaml .Values.serviceMonitor.metricRelabelings | nindent 8 }}
+{{- end }}
+---
+{{- if and .Values.opNode.metrics.enabled .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "base.fullname" . }}-op-node
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-node
+    {{- with .Values.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: op-node
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
+      path: {{ .Values.opNode.metrics.path }}
+      relabelings:
+        {{- toYaml .Values.serviceMonitor.relabelings | nindent 8 }}
+      metricRelabelings:
+        {{- toYaml .Values.serviceMonitor.metricRelabelings | nindent 8 }}
+{{- end }}

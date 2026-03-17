@@ -1,0 +1,157 @@
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Network
+network: mainnet
+
+# ---------------------------------------------------------------------------
+# op-geth – Execution Layer (OP Stack fork of go-ethereum)
+# ---------------------------------------------------------------------------
+opGeth:
+  image:
+    repository: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth
+    tag: v1.101411.4
+    pullPolicy: IfNotPresent
+
+  # HTTP JSON-RPC
+  http:
+    enabled: true
+    port: 8545
+    wsEnabled: true
+    wsPort: 8546
+    corsOrigins: ["*"]
+    vhosts: ["*"]
+
+  # Auth RPC (Engine API – used by op-node)
+  authrpc:
+    enabled: true
+    port: 8551
+
+  # Metrics
+  metrics:
+    enabled: true
+    port: 6060
+    path: /metrics
+
+  # P2P
+  p2p:
+    port: 30303
+
+  # Persistence
+  persistence:
+    enabled: true
+    existingClaim: ""
+    accessModes: ["ReadWriteOnce"]
+    size: 500Gi
+    storageClass: ""
+
+  # Resources / scheduling
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  # JWT for Engine API authentication
+  jwt:
+    enabled: true
+    # Native Kubernetes secret (only used when vault.enabled is false)
+    existingSecret: "jwt-token"
+    existingSecretKey: jwt
+    # Vault injector configuration (default)
+    vault:
+      enabled: true
+      secretPath: "secret/data/ethereum/jwt"
+      secretKey: "jwt"
+      role: "ethereum-node"
+      agentInjectStatus: "update"
+      agentPrePopulate: "true"
+      agentPrePopulateOnly: "false"
+      # Kubernetes secret (in same namespace) containing ca.crt for Vault TLS verification
+      tlsSecret: ""
+
+# ---------------------------------------------------------------------------
+# op-node – Rollup Node (consensus / derivation engine)
+# ---------------------------------------------------------------------------
+opNode:
+  image:
+    repository: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node
+    tag: v1.13.1
+    pullPolicy: IfNotPresent
+
+  # L1 Ethereum RPC endpoint (point at your Geth / Lighthouse stack)
+  l1:
+    rpc: "http://el-geth-rpc:8545"
+    rpckind: "basic" # basic | alchemy | quicknode | infura | parity | erigon | any
+
+  # L2 op-geth Engine API endpoint (auto-resolved from release name when empty)
+  l2:
+    engineRpc: ""    # If empty defaults to http://<release>-base-op-geth-engine:8551
+    enginePort: 8551
+
+  # Rollup config – required for Base mainnet
+  rollupConfig:
+    # Set to true to load config from a ConfigMap (see rollupConfigMap below)
+    fromConfigMap: false
+    # Inline rollup config file content (used when fromConfigMap is false)
+    # Leave empty to rely on the built-in network preset (--network=base-mainnet)
+    content: ""
+
+  # HTTP API
+  api:
+    enabled: true
+    port: 9545
+
+  # P2P
+  p2p:
+    enabled: true
+    port: 9222
+    advertiseIp: ""  # Public IP for P2P advertisement (set to node's external IP)
+
+  # Metrics
+  metrics:
+    enabled: true
+    port: 7300
+    path: /metrics
+
+  # Persistence (stores op-node state / sync data)
+  persistence:
+    enabled: true
+    existingClaim: ""
+    accessModes: ["ReadWriteOnce"]
+    size: 50Gi
+    storageClass: ""
+
+  # Resources / scheduling
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  # JWT for Engine API authentication (same secret as op-geth)
+  jwt:
+    enabled: true
+    # Native Kubernetes secret (only used when vault.enabled is false)
+    existingSecret: "jwt-token"
+    existingSecretKey: jwt
+    # Vault injector configuration (default)
+    vault:
+      enabled: true
+      secretPath: "secret/data/ethereum/jwt"
+      secretKey: "jwt"
+      role: "ethereum-node"
+      agentInjectStatus: "update"
+      agentPrePopulate: "true"
+      agentPrePopulateOnly: "false"
+      tlsSecret: ""
+
+# ---------------------------------------------------------------------------
+# Prometheus ServiceMonitor (covers both op-geth and op-node)
+# ---------------------------------------------------------------------------
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+  relabelings: []
+  metricRelabelings: []

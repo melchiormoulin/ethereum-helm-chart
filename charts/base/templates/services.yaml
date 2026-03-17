@@ -1,0 +1,166 @@
+# =============================================================================
+# op-geth Services
+# =============================================================================
+
+# P2P (NodePort) – always created
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth-p2p
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-geth") | nindent 4 }}
+  ports:
+    - name: p2p-tcp
+      port: {{ .Values.opGeth.p2p.port }}
+      nodePort: {{ .Values.opGeth.p2p.port }}
+      targetPort: p2p-tcp
+      protocol: TCP
+    - name: p2p-udp
+      port: {{ .Values.opGeth.p2p.port }}
+      nodePort: {{ .Values.opGeth.p2p.port }}
+      targetPort: p2p-udp
+      protocol: UDP
+---
+{{- if .Values.opGeth.http.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth-rpc
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-geth") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.opGeth.http.port }}
+      targetPort: http
+      protocol: TCP
+    {{- if .Values.opGeth.http.wsEnabled }}
+    - name: ws
+      port: {{ .Values.opGeth.http.wsPort }}
+      targetPort: ws
+      protocol: TCP
+    {{- end }}
+{{- end }}
+---
+{{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth-engine
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-geth") | nindent 4 }}
+  ports:
+    - name: engine
+      port: {{ .Values.opGeth.authrpc.port }}
+      targetPort: {{ .Values.opGeth.authrpc.port }}
+      protocol: TCP
+{{- end }}
+---
+{{- if .Values.opGeth.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-geth-metrics
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-geth
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-geth") | nindent 4 }}
+  ports:
+    - name: metrics
+      port: {{ .Values.opGeth.metrics.port }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}
+
+---
+# =============================================================================
+# op-node Services
+# =============================================================================
+
+# P2P (NodePort) – always created when p2p is enabled
+{{- if .Values.opNode.p2p.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-node-p2p
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-node
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-node") | nindent 4 }}
+  ports:
+    - name: p2p-tcp
+      port: {{ .Values.opNode.p2p.port }}
+      nodePort: {{ .Values.opNode.p2p.port }}
+      targetPort: p2p-tcp
+      protocol: TCP
+    - name: p2p-udp
+      port: {{ .Values.opNode.p2p.port }}
+      nodePort: {{ .Values.opNode.p2p.port }}
+      targetPort: p2p-udp
+      protocol: UDP
+{{- end }}
+---
+{{- if .Values.opNode.api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-node-api
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-node
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-node") | nindent 4 }}
+  ports:
+    - name: api
+      port: {{ .Values.opNode.api.port }}
+      targetPort: api
+      protocol: TCP
+{{- end }}
+---
+{{- if .Values.opNode.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base.fullname" . }}-op-node-metrics
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+    app.kubernetes.io/component: op-node
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "base.selectorLabels" (list . "op-node") | nindent 4 }}
+  ports:
+    - name: metrics
+      port: {{ .Values.opNode.metrics.port }}
+      targetPort: metrics
+      protocol: TCP
+{{- end }}
