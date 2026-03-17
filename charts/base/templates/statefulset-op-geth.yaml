@@ -42,7 +42,6 @@ spec:
           imagePullPolicy: {{ .Values.opGeth.image.pullPolicy }}
           args:
             - "--datadir=/var/lib/op-geth"
-            - "--{{ .Values.network }}"
             - "--port={{ .Values.opGeth.p2p.port }}"
             - "--op-network=base-{{ .Values.network }}"
             {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
