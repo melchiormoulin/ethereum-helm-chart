@@ -66,10 +66,16 @@ spec:
             - "--http.port={{ .Values.http.port }}"
             - "--http.corsdomain={{ join "," .Values.http.corsOrigins }}"
             - "--http.vhosts={{ join "," .Values.http.vhosts }}"
+            {{- if .Values.http.api }}
+            - "--http.api={{ .Values.http.api }}"
+            {{- end }}
             {{- if .Values.http.wsEnabled }}
             - "--ws"
             - "--ws.addr=0.0.0.0"
             - "--ws.port={{ .Values.http.wsPort }}"
+            {{- if .Values.http.wsApi }}
+            - "--ws.api={{ .Values.http.wsApi }}"
+            {{- end }}
             {{- end }}
             {{- end }}
           ports:

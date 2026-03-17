@@ -21,8 +21,10 @@ authrpc:
 http:
   enabled: true
   port: 8545
+  api: ""   # Comma-separated list of APIs (e.g. "eth,net,web3,debug"). Defaults to geth built-in default if empty.
   wsEnabled: true
   wsPort: 8546
+  wsApi: "" # Comma-separated list of WS APIs. Defaults to geth built-in default if empty.
   corsOrigins: ["*"]
   vhosts: ["*"]
 
