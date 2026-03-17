@@ -45,6 +45,9 @@ spec:
             - "--network=base-{{ .Values.network }}"
             - "--l1={{ .Values.opNode.l1.rpc }}"
             - "--l1.rpckind={{ .Values.opNode.l1.rpckind }}"
+            {{- if .Values.opNode.l1.beacon }}
+            - "--l1.beacon={{ .Values.opNode.l1.beacon }}"
+            {{- end }}
             {{- $defaultEngineRpc := printf "http://%s-op-geth-engine:%d" (include "base.fullname" .) (int .Values.opNode.l2.enginePort) -}}
             {{- $engineRpc := default $defaultEngineRpc .Values.opNode.l2.engineRpc }}
             - "--l2={{ $engineRpc }}"

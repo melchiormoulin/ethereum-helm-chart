@@ -83,6 +83,7 @@ opNode:
   l1:
     rpc: "http://el-geth-rpc:8545"
     rpckind: "basic" # basic | alchemy | quicknode | infura | parity | erigon | any
+    beacon: ""  # L1 Beacon API endpoint (required, e.g. http://cl-lighthouse-api:5052)
 
   # L2 op-geth Engine API endpoint (auto-resolved from release name when empty)
   l2:
