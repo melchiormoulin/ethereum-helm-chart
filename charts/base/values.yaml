@@ -34,6 +34,9 @@ opGeth:
     port: 6060
     path: /metrics
 
+  # Sync mode: "snap" (default geth) or "full" (Engine API driven by op-node, recommended for OP Stack)
+  syncMode: "full"
+
   # P2P
   p2p:
     port: 30303
@@ -103,6 +106,10 @@ opNode:
   api:
     enabled: true
     port: 9545
+
+  # Sync mode: "consensus-layer" (op-node drives via Engine API) or "execution-layer" (snap sync)
+  # consensus-layer is recommended for a fresh node since snap sync from block 0 is not viable on Base mainnet
+  syncMode: "consensus-layer"
 
   # P2P
   p2p:

@@ -74,7 +74,7 @@ spec:
             - "--metrics.addr=0.0.0.0"
             - "--metrics.port={{ .Values.opNode.metrics.port }}"
             {{- end }}
-            - "--syncmode=execution-layer"
+            - "--syncmode={{ .Values.opNode.syncMode }}"
           ports:
             {{- if .Values.opNode.p2p.enabled }}
             - name: p2p-tcp

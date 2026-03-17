@@ -77,6 +77,7 @@ spec:
             - "--metrics.port={{ .Values.opGeth.metrics.port }}"
             {{- end }}
             - "--rollup.disabletxpoolgossip=true"
+            - "--syncmode={{ .Values.opGeth.syncMode }}"
             - "--gcmode=archive"
           ports:
             - name: p2p-tcp
