@@ -43,6 +43,9 @@ spec:
           args:
             - "--datadir=/var/lib/op-geth"
             - "--port={{ .Values.opGeth.p2p.port }}"
+            {{- if .Values.opGeth.p2p.nat }}
+            - "--nat={{ .Values.opGeth.p2p.nat }}"
+            {{- end }}
             - "--op-network=base-{{ .Values.network }}"
             {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
             - "--authrpc.addr=0.0.0.0"

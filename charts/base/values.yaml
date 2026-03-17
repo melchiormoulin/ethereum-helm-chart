@@ -37,6 +37,7 @@ opGeth:
   # P2P
   p2p:
     port: 30303
+    nat: ""  # NAT traversal override (e.g. "extip:1.2.3.4", "any", "none"). Required in Kubernetes to advertise the correct external IP.
 
   # Persistence
   persistence:
