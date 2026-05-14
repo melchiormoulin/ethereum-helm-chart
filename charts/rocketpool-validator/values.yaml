@@ -5,7 +5,7 @@ image:
 
 network: hoodi
 beaconNodeUrl: http://cl-lighthouse-api:5052
-validatorDataDir: /root/.rocketpool/data/validators/lighthouse
+validatorDataDir: /data/.rocketpool/data/validators/lighthouse
 
 replicaCount: 1
 podAnnotations: {}
@@ -20,7 +20,20 @@ persistence:
   size: 50Gi
   storageClass: ""
   existingClaim: ""
-  mountPath: /root/.rocketpool
+  mountPath: /data/.rocketpool
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
 
 service:
   type: ClusterIP

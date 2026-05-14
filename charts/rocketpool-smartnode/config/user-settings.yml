@@ -158,8 +158,8 @@ native:
   ccHttpUrl: ""
   consensusClient: lighthouse
   ecHttpUrl: ""
-  validatorRestartCommand: /root/.rocketpool/restart-vc.sh
-  validatorStopCommand: /root/.rocketpool/stop-validator.sh
+  validatorRestartCommand: {{ .Values.persistence.mountPath }}/restart-vc.sh
+  validatorStopCommand: {{ .Values.persistence.mountPath }}/stop-validator.sh
 nethermind:
   additionalFlags: ""
   additionalModules: ""
@@ -214,7 +214,7 @@ root:
   isNative: "false"
   nodeMetricsPort: "9102"
   reconnectDelay: 60s
-  rpDir: /root/.rocketpool
+  rpDir: {{ .Values.persistence.mountPath }}
   useFallbackClients: "false"
   vcMetricsPort: "9101"
   version: {{ .Values.smartnodeVersion | quote }}
@@ -222,7 +222,7 @@ root:
 smartnode:
   archiveECUrl: ""
   autoInitVPThreshold: "5"
-  dataPath: /root/.rocketpool/data
+  dataPath: {{ .Values.persistence.mountPath }}/data
   distributeThreshold: "1"
   manualMaxFee: "0"
   minipoolStakeGasThreshold: "150"

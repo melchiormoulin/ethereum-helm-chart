@@ -17,6 +17,19 @@ resources:
     memory: "512Mi"
   limits: {}
 
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
@@ -25,7 +38,7 @@ affinity: {}
 
 # Smartnode daemon (rocketpoold) entrypoint.
 command: ["/go/bin/rocketpool"]
-args: ["--settings=/root/.rocketpool/user-settings.yml", "node"]
+args: ["--settings=/data/.rocketpool/user-settings.yml", "node"]
 
 clients:
   executionHttpUrl: http://el-geth-rpc:8545
@@ -35,7 +48,7 @@ clients:
 walletPassword:
   existingSecret: ""
   existingSecretKey: password
-  filePath: /root/.rocketpool/data/password
+  filePath: /data/.rocketpool/data/password
 
 vault:
   enabled: false
@@ -46,7 +59,7 @@ vault:
   tlsSecret: ""
   passwordSecretPath: secret/data/ethereum/rocketpool
   passwordSecretKey: password
-  passwordFilePath: /root/.rocketpool/data/password
+  passwordFilePath: /data/.rocketpool/data/password
 
 
 
@@ -59,7 +72,7 @@ persistence:
   existingClaim: ""                   # if you want to bind an existing PVC
   volumeMode: "Filesystem"             # or "Block" if you use raw block storage
   volumeName: "rocketpool-smartnode"       # specify a particular PV to bind to
-  mountPath: /root/.rocketpool  # where to mount the volume in the container
+  mountPath: /data/.rocketpool  # where to mount the volume in the container
 
 # --- Service ---
 service:
