@@ -211,7 +211,7 @@ root:
   executionClientMode: external
   exporterMetricsPort: "9103"
   externalConsensusClient: lighthouse
-  isNative: "false"
+  isNative: "true"
   nodeMetricsPort: "9102"
   reconnectDelay: 60s
   rpDir: {{ .Values.persistence.mountPath }}
