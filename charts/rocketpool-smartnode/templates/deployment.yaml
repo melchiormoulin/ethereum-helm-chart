@@ -48,8 +48,22 @@ spec:
       securityContext:
 {{ toYaml . | nindent 8 }}
 {{ end }}
-{{- if and .Values.walletPassword.existingSecret (not .Values.vault.enabled) }}
+{{- if or .Values.permissionFix.enabled (and .Values.walletPassword.existingSecret (not .Values.vault.enabled)) }}
       initContainers:
+{{- if .Values.permissionFix.enabled }}
+        - name: fix-data-permissions
+          image: busybox:1.37
+          command: ["sh", "-c", "chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.runAsGroup }} {{ .Values.persistence.mountPath }}"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: home
+              mountPath: {{ .Values.persistence.mountPath }}
+{{- end }}
+{{- if and .Values.walletPassword.existingSecret (not .Values.vault.enabled) }}
         - name: copy-wallet-password
           image: busybox:1.37
           command: ["sh", "-c", "mkdir -p {{ .Values.persistence.mountPath }}/data && rm -rf {{ .Values.persistence.mountPath }}/data/password && cp /secret/{{ .Values.walletPassword.existingSecretKey }} {{ .Values.persistence.mountPath }}/data/password"]
@@ -63,6 +77,7 @@ spec:
             - name: wallet-password
               mountPath: /secret
               readOnly: true
+{{- end }}
 {{- end }}
       containers:
         - name: smartnode

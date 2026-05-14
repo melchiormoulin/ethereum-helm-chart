@@ -30,6 +30,9 @@ securityContext:
     drop:
       - ALL
 
+permissionFix:
+  enabled: true
+
 nodeSelector: {}
 tolerations: []
 affinity: {}
