@@ -52,7 +52,7 @@ spec:
       initContainers:
         - name: copy-wallet-password
           image: busybox:1.37
-          command: ["sh", "-c", "mkdir -p {{ .Values.persistence.mountPath }}/data && cp -f /secret/{{ .Values.walletPassword.existingSecretKey }} {{ .Values.persistence.mountPath }}/data/password"]
+          command: ["sh", "-c", "mkdir -p {{ .Values.persistence.mountPath }}/data && rm -rf {{ .Values.persistence.mountPath }}/data/password && cp /secret/{{ .Values.walletPassword.existingSecretKey }} {{ .Values.persistence.mountPath }}/data/password"]
 {{ with .Values.securityContext }}
           securityContext:
 {{ toYaml . | nindent 12 }}
