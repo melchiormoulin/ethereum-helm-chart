@@ -59,20 +59,8 @@ opGeth:
   # JWT for Engine API authentication
   jwt:
     enabled: true
-    # Native Kubernetes secret (only used when vault.enabled is false)
     existingSecret: "jwt-token"
     existingSecretKey: jwt
-    # Vault injector configuration (default)
-    vault:
-      enabled: true
-      secretPath: "secret/data/ethereum/jwt"
-      secretKey: "jwt"
-      role: "ethereum-node"
-      agentInjectStatus: "update"
-      agentPrePopulate: "true"
-      agentPrePopulateOnly: "false"
-      # Kubernetes secret (in same namespace) containing ca.crt for Vault TLS verification
-      tlsSecret: ""
 
 # ---------------------------------------------------------------------------
 # op-node – Rollup Node (consensus / derivation engine)
@@ -140,19 +128,8 @@ opNode:
   # JWT for Engine API authentication (same secret as op-geth)
   jwt:
     enabled: true
-    # Native Kubernetes secret (only used when vault.enabled is false)
     existingSecret: "jwt-token"
     existingSecretKey: jwt
-    # Vault injector configuration (default)
-    vault:
-      enabled: true
-      secretPath: "secret/data/ethereum/jwt"
-      secretKey: "jwt"
-      role: "ethereum-node"
-      agentInjectStatus: "update"
-      agentPrePopulate: "true"
-      agentPrePopulateOnly: "false"
-      tlsSecret: ""
 
 # ---------------------------------------------------------------------------
 # Prometheus ServiceMonitor (covers both op-geth and op-node)

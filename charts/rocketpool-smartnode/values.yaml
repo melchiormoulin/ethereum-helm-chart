@@ -1,11 +1,11 @@
 # --- Image & runtime ---
 image:
   repository: rocketpool/smartnode
-  tag: v1.19.0
+  tag: v1.20.2
   pullPolicy: IfNotPresent
 
-network: hoodi
-smartnodeVersion: v1.19.0
+network: testnet
+smartnodeVersion: v1.20.2
 
 replicaCount: 1
 podAnnotations: {}
@@ -49,19 +49,6 @@ walletPassword:
   existingSecret: ""
   existingSecretKey: password
   filePath: /data/.rocketpool/data/password
-
-vault:
-  enabled: false
-  role: ethereum-node
-  agentInjectStatus: update
-  agentPrePopulate: "true"
-  agentPrePopulateOnly: "false"
-  tlsSecret: ""
-  passwordSecretPath: secret/data/ethereum/rocketpool
-  passwordSecretKey: password
-  passwordFilePath: /data/.rocketpool/data/password
-
-
 
 # --- Persistence ---
 persistence:

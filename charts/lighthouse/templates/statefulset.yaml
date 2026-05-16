@@ -17,23 +17,6 @@ spec:
       labels:
         {{- include "lighthouse.labels" . | nindent 8 }}
         {{- include "lighthouse.selectorLabels" (list . "lighthouse") | nindent 8 }}
-      {{- if and .Values.jwt.enabled .Values.jwt.vault.enabled }}
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-status: {{ .Values.jwt.vault.agentInjectStatus | quote }}
-        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.jwt.vault.secretPath | quote }}
-        vault.hashicorp.com/agent-inject-template-jwt: |
-          {{`{{- with secret "`}}{{ .Values.jwt.vault.secretPath }}{{`" -}}`}}
-          {{`{{ .Data.data.`}}{{ .Values.jwt.vault.secretKey }}{{` }}`}}
-          {{`{{- end -}}`}}
-        vault.hashicorp.com/role: {{ .Values.jwt.vault.role | quote }}
-        vault.hashicorp.com/agent-pre-populate: {{ .Values.jwt.vault.agentPrePopulate | quote }}
-        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.jwt.vault.agentPrePopulateOnly | quote }}
-        {{- if .Values.jwt.vault.tlsSecret }}
-        vault.hashicorp.com/tls-secret: {{ .Values.jwt.vault.tlsSecret | quote }}
-        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
-        {{- end }}
-      {{- end }}
     spec:
       enableServiceLinks: false # avoid LIGHTHOUSE env var issues if helmrelease name is lighthouse.
       containers:
@@ -53,11 +36,7 @@ spec:
             {{- $endpoint := default $defaultEndpoint .Values.execution.endpoint -}}
             {{- if .Values.jwt.enabled }}
             - "--execution-endpoint={{ $endpoint }}"
-            {{- if .Values.jwt.vault.enabled }}
-            - "--execution-jwt=/vault/secrets/jwt"
-            {{- else }}
             - "--execution-jwt=/secrets/jwt"
-            {{- end }}
             {{- else }}
             - "--execution-endpoint={{ $endpoint }}"
             {{- end }}
@@ -100,7 +79,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/lighthouse
-            {{- if and .Values.jwt.enabled .Values.execution.enabled (not .Values.jwt.vault.enabled) }}
+            {{- if and .Values.jwt.enabled .Values.execution.enabled }}
             - name: jwt
               mountPath: /secrets
               readOnly: true
@@ -120,10 +99,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if and .Values.jwt.enabled (not .Values.jwt.vault.enabled) }}
+      {{- if .Values.jwt.enabled }}
         - name: jwt
           secret:
-            secretName: {{ if .Values.jwt.existingSecret }}{{ .Values.jwt.existingSecret }}{{ end }}
+            secretName: {{ .Values.jwt.existingSecret }}
             items:
               - key: {{ .Values.jwt.existingSecretKey | default "jwt" }}
                 path: jwt

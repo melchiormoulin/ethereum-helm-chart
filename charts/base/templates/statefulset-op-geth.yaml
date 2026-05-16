@@ -17,23 +17,6 @@ spec:
       labels:
         {{- include "base.labels" . | nindent 8 }}
         {{- include "base.selectorLabels" (list . "op-geth") | nindent 8 }}
-      {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.jwt.vault.enabled }}
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-status: {{ .Values.opGeth.jwt.vault.agentInjectStatus | quote }}
-        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.opGeth.jwt.vault.secretPath | quote }}
-        vault.hashicorp.com/agent-inject-template-jwt: |
-          {{`{{- with secret "`}}{{ .Values.opGeth.jwt.vault.secretPath }}{{`" -}}`}}
-          {{`{{ .Data.data.`}}{{ .Values.opGeth.jwt.vault.secretKey }}{{` }}`}}
-          {{`{{- end -}}`}}
-        vault.hashicorp.com/role: {{ .Values.opGeth.jwt.vault.role | quote }}
-        vault.hashicorp.com/agent-pre-populate: {{ .Values.opGeth.jwt.vault.agentPrePopulate | quote }}
-        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.opGeth.jwt.vault.agentPrePopulateOnly | quote }}
-        {{- if .Values.opGeth.jwt.vault.tlsSecret }}
-        vault.hashicorp.com/tls-secret: {{ .Values.opGeth.jwt.vault.tlsSecret | quote }}
-        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
-        {{- end }}
-      {{- end }}
     spec:
       enableServiceLinks: false
       containers:
@@ -51,11 +34,7 @@ spec:
             - "--authrpc.addr=0.0.0.0"
             - "--authrpc.port={{ .Values.opGeth.authrpc.port }}"
             - "--authrpc.vhosts=*"
-            {{- if .Values.opGeth.jwt.vault.enabled }}
-            - "--authrpc.jwtsecret=/vault/secrets/jwt"
-            {{- else }}
             - "--authrpc.jwtsecret=/secrets/jwt"
-            {{- end }}
             {{- end }}
             {{- if .Values.opGeth.http.enabled }}
             - "--http"
@@ -109,7 +88,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/op-geth
-            {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled (not .Values.opGeth.jwt.vault.enabled) }}
+            {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
             - name: jwt
               mountPath: /secrets
               readOnly: true
@@ -130,10 +109,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled (not .Values.opGeth.jwt.vault.enabled) }}
+      {{- if and .Values.opGeth.jwt.enabled .Values.opGeth.authrpc.enabled }}
         - name: jwt
           secret:
-            secretName: {{ if .Values.opGeth.jwt.existingSecret }}{{ .Values.opGeth.jwt.existingSecret }}{{ end }}
+            secretName: {{ .Values.opGeth.jwt.existingSecret }}
             items:
               - key: {{ .Values.opGeth.jwt.existingSecretKey | default "jwt" }}
                 path: jwt

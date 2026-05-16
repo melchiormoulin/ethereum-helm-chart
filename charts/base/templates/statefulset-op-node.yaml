@@ -17,23 +17,6 @@ spec:
       labels:
         {{- include "base.labels" . | nindent 8 }}
         {{- include "base.selectorLabels" (list . "op-node") | nindent 8 }}
-      {{- if and .Values.opNode.jwt.enabled .Values.opNode.jwt.vault.enabled }}
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-status: {{ .Values.opNode.jwt.vault.agentInjectStatus | quote }}
-        vault.hashicorp.com/agent-inject-secret-jwt: {{ .Values.opNode.jwt.vault.secretPath | quote }}
-        vault.hashicorp.com/agent-inject-template-jwt: |
-          {{`{{- with secret "`}}{{ .Values.opNode.jwt.vault.secretPath }}{{`" -}}`}}
-          {{`{{ .Data.data.`}}{{ .Values.opNode.jwt.vault.secretKey }}{{` }}`}}
-          {{`{{- end -}}`}}
-        vault.hashicorp.com/role: {{ .Values.opNode.jwt.vault.role | quote }}
-        vault.hashicorp.com/agent-pre-populate: {{ .Values.opNode.jwt.vault.agentPrePopulate | quote }}
-        vault.hashicorp.com/agent-pre-populate-only: {{ .Values.opNode.jwt.vault.agentPrePopulateOnly | quote }}
-        {{- if .Values.opNode.jwt.vault.tlsSecret }}
-        vault.hashicorp.com/tls-secret: {{ .Values.opNode.jwt.vault.tlsSecret | quote }}
-        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
-        {{- end }}
-      {{- end }}
     spec:
       enableServiceLinks: false
       containers:
@@ -52,11 +35,7 @@ spec:
             {{- $engineRpc := default $defaultEngineRpc .Values.opNode.l2.engineRpc }}
             - "--l2={{ $engineRpc }}"
             {{- if .Values.opNode.jwt.enabled }}
-            {{- if .Values.opNode.jwt.vault.enabled }}
-            - "--l2.jwt-secret=/vault/secrets/jwt"
-            {{- else }}
             - "--l2.jwt-secret=/secrets/jwt"
-            {{- end }}
             {{- end }}
             {{- if .Values.opNode.api.enabled }}
             - "--rpc.addr=0.0.0.0"
@@ -97,7 +76,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/op-node
-            {{- if and .Values.opNode.jwt.enabled (not .Values.opNode.jwt.vault.enabled) }}
+            {{- if .Values.opNode.jwt.enabled }}
             - name: jwt
               mountPath: /secrets
               readOnly: true
@@ -118,10 +97,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if and .Values.opNode.jwt.enabled (not .Values.opNode.jwt.vault.enabled) }}
+      {{- if .Values.opNode.jwt.enabled }}
         - name: jwt
           secret:
-            secretName: {{ if .Values.opNode.jwt.existingSecret }}{{ .Values.opNode.jwt.existingSecret }}{{ end }}
+            secretName: {{ .Values.opNode.jwt.existingSecret }}
             items:
               - key: {{ .Values.opNode.jwt.existingSecretKey | default "jwt" }}
                 path: jwt
