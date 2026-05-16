@@ -57,6 +57,8 @@ spec:
           volumeMounts:
             - name: home
               mountPath: {{ .Values.persistence.mountPath }}
+            - name: home
+              mountPath: /.rocketpool
             - name: config
               mountPath: {{ .Values.persistence.mountPath }}/user-settings.yml
               subPath: user-settings.yml
