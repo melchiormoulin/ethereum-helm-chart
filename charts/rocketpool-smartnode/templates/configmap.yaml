@@ -1,3 +1,13 @@
+{{- $configPath := printf "config/%s/user-settings.yml" .Values.config.profile }}
+{{- $configRaw := required (printf "missing Rocket Pool config file: %s" $configPath) (.Files.Get $configPath) }}
+{{- $configParsed := fromYaml $configRaw }}
+{{- $configVersion := "" }}
+{{- if and $configParsed (hasKey $configParsed "root") }}
+{{-   $configVersion = index $configParsed.root "version" }}
+{{- end }}
+{{- if and $configVersion (ne $configVersion .Values.image.tag) }}
+{{-   fail (printf "Rocket Pool config drift: %s has root.version=%s but image.tag=%s. Regenerate the profile with rocketpool/smartnode:%s (see README)." $configPath $configVersion .Values.image.tag .Values.image.tag) }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,6 +17,4 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   user-settings.yml: |
-{{- $configPath := printf "config/%s/user-settings.yml" .Values.config.profile }}
-{{ required (printf "missing Rocket Pool config file: %s" $configPath) (.Files.Get $configPath) | nindent 4 }}
-      
+{{ $configRaw | nindent 4 }}
