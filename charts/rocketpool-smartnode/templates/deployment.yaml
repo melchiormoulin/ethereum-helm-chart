@@ -62,11 +62,6 @@ spec:
             - name: config
               mountPath: {{ .Values.persistence.mountPath }}/user-settings.yml
               subPath: user-settings.yml
-{{ if .Values.walletPassword.existingSecret }}
-            - name: wallet-password
-              mountPath: {{ dir .Values.walletPassword.filePath }}
-              readOnly: true
-{{ end }}
           resources:
 {{ toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -80,14 +75,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "rocketpool-smartnode.fullname" . }}-config
-{{ if .Values.walletPassword.existingSecret }}
-        - name: wallet-password
-          secret:
-            secretName: {{ .Values.walletPassword.existingSecret }}
-            items:
-              - key: {{ .Values.walletPassword.existingSecretKey | default "password" }}
-                path: {{ base .Values.walletPassword.filePath }}
-{{ end }}
 {{ with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | nindent 8 }}

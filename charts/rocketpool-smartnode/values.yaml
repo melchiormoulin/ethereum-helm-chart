@@ -42,11 +42,6 @@ config:
   # the matching Rocket Pool Smartnode release and is mounted as-is.
   profile: testnet
 
-walletPassword:
-  existingSecret: ""
-  existingSecretKey: password
-  filePath: /data/.rocketpool/data/password
-
 # --- Persistence ---
 persistence:
   enabled: true

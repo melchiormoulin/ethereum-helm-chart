@@ -103,7 +103,6 @@ Rocket Pool Saturn smartnode daemon.
 - Entrypoint: `/go/bin/rocketpool --settings=/data/.rocketpool/user-settings.yml node`
 - Daemon API service port: `8080`
 - Metrics service port: `9102`
-- Vault-injected wallet password: `secret/data/ethereum/rocketpool` (`password` key)
 
 ### 4. Base Node (`charts/base/`)
 
@@ -157,11 +156,6 @@ Both Geth and Lighthouse use JWT tokens for Engine API authentication. By defaul
 - Secret key: `jwt`
 - Vault role: `ethereum-node`
 - Mount path: `/vault/secrets/jwt`
-
-Rocket Pool smartnode additionally uses Vault Agent for wallet password material:
-- Secret path: `secret/data/ethereum/rocketpool`
-- Secret key: `password`
-- Injected file path: `/data/.rocketpool/data/password`
 
 **To use Kubernetes secrets instead:**
 ```yaml
