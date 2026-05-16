@@ -4,9 +4,6 @@ image:
   tag: v1.20.2
   pullPolicy: IfNotPresent
 
-network: testnet
-smartnodeVersion: v1.20.2
-
 replicaCount: 1
 podAnnotations: {}
 podLabels: {}
@@ -40,10 +37,10 @@ affinity: {}
 command: ["/go/bin/rocketpool"]
 args: ["--settings=/data/.rocketpool/user-settings.yml", "node"]
 
-clients:
-  executionHttpUrl: http://el-geth-rpc:8545
-  executionWsUrl: ws://el-geth-rpc:8546
-  beaconHttpUrl: http://cl-lighthouse-api:5052
+config:
+  # Selects config/<profile>/user-settings.yml. This file is generated from
+  # the matching Rocket Pool Smartnode release and is mounted as-is.
+  profile: testnet
 
 walletPassword:
   existingSecret: ""

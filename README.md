@@ -54,12 +54,15 @@ kubectl apply -f jwt-secret.yaml
 ```
 
 2. create or update smartnode config
+
+Rocket Pool Smartnode settings are stored as generated, release-specific YAML files and mounted as-is by Helm. The chart selects `charts/rocketpool-smartnode/config/<profile>/user-settings.yml` using `rocketpool-smartnode.config.profile` from `values.yaml`.
+
+When upgrading Rocket Pool, regenerate the profile config with the target Smartnode image, review the diff, and commit the generated file together with the image tag change.
+
+If the execution layer or consensus layer service URLs change, update them manually in each generated `charts/rocketpool-smartnode/config/<profile>/user-settings.yml` file. These URLs are not Helm values.
+
 ```
-docker run --rm -it --entrypoint=rocketpool-cli -v ./:/root/.rocketpool/ rocketpool/smartnode:v1.17.3 --allow-root service config     --smartnode-network testnet \
-    --executionClientMode external \
-    --externalExecution-httpUrl http://el-geth-rpc:8545 \
-    --externalExecution-wsUrl  ws://el-geth-rpc:8546 \
-    --consensusClientMode external \
-    --externalConsensusClient lighthouse \
-    --externalLighthouse-httpUrl http://cl-lighthouse-api:5052
+docker run --rm -it --entrypoint=rocketpool-cli -v ./charts/rocketpool-smartnode/config/testnet:/root/.rocketpool/ rocketpool/smartnode:v1.20.2 --allow-root service config
 ```
+
+For the testnet profile, configure external execution at `http://el-geth-rpc:8545` and `ws://el-geth-rpc:8546`, and external Lighthouse at `http://cl-lighthouse-api:5052`.

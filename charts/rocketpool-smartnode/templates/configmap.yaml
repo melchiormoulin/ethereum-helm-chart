@@ -7,5 +7,6 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
   user-settings.yml: |
-{{ tpl (.Files.Get "config/user-settings.yml") . | nindent 4 }}
+{{- $configPath := printf "config/%s/user-settings.yml" .Values.config.profile }}
+{{ required (printf "missing Rocket Pool config file: %s" $configPath) (.Files.Get $configPath) | nindent 4 }}
       

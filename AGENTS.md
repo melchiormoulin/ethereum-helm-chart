@@ -89,11 +89,18 @@ Rocket Pool Saturn smartnode daemon.
 - `values.yaml` - Configuration defaults
 - `templates/deployment.yaml` - Pod definition
 - `templates/configmap.yaml` - Configuration
-- `config/user-settings.yml` - Default settings
+- `config/<profile>/user-settings.yml` - Generated Rocket Pool settings mounted as-is
+
+**Configuration workflow:**
+- Helm does not template Rocket Pool application settings.
+- `values.yaml` selects the generated settings profile via `config.profile` (default: `testnet`).
+- Regenerate `user-settings.yml` with the target `rocketpool/smartnode` image when upgrading Smartnode versions, review the diff, and commit it with the image tag change.
+- If execution layer or consensus layer service URLs change, update them manually in each generated `config/<profile>/user-settings.yml` file. These URLs are not Helm values.
+- Keep Rocket Pool app settings in the generated profile file; keep Helm values focused on Kubernetes concerns such as image, resources, persistence, services, labels, and secrets.
 
 **Current deployed behavior:**
-- Image/tag default: `rocketpool/smartnode:v1.19.0`
-- Entrypoint: `/go/bin/rocketpool --settings=/root/.rocketpool/user-settings.yml node`
+- Image/tag default: `rocketpool/smartnode:v1.20.2`
+- Entrypoint: `/go/bin/rocketpool --settings=/data/.rocketpool/user-settings.yml node`
 - Daemon API service port: `8080`
 - Metrics service port: `9102`
 - Vault-injected wallet password: `secret/data/ethereum/rocketpool` (`password` key)
@@ -154,7 +161,7 @@ Both Geth and Lighthouse use JWT tokens for Engine API authentication. By defaul
 Rocket Pool smartnode additionally uses Vault Agent for wallet password material:
 - Secret path: `secret/data/ethereum/rocketpool`
 - Secret key: `password`
-- Injected file path: `/root/.rocketpool/data/password`
+- Injected file path: `/data/.rocketpool/data/password`
 
 **To use Kubernetes secrets instead:**
 ```yaml
