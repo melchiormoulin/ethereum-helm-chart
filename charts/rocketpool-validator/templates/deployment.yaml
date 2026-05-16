@@ -33,11 +33,15 @@ spec:
         - name: validator
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ dir .Values.persistence.mountPath }}
           command: {{- toYaml .Values.command | nindent 12 }}
 {{- with .Values.securityContext }}
           securityContext:
 {{ toYaml . | nindent 12 }}
 {{- end }}
+          env:
+            - name: HOME
+              value: {{ dir .Values.persistence.mountPath }}
           args:
             - vc
             - --network={{ .Values.network }}

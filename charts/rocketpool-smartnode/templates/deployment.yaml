@@ -33,6 +33,7 @@ spec:
         - name: smartnode
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ dir .Values.persistence.mountPath }}
           command: {{- toYaml .Values.command | nindent 12 }}
           args: {{- toYaml .Values.args | nindent 12 }}
 {{ with .Values.securityContext }}
