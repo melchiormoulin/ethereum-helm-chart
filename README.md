@@ -55,6 +55,24 @@ the wallet file, and storing it as a Secret would split that lifecycle
 and expose the password through etcd. Treat the PV (and your storage
 class's at-rest encryption) as the secret store.
 
+### Rocket Pool CLI commands
+
+Run `rocketpool-cli` inside the smartnode pod and point it at the mounted
+Rocket Pool directory with `-c /.rocketpool/`:
+
+```bash
+POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode -o jsonpath='{.items[0].metadata.name}')
+
+# Wallet status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet status
+
+# Node status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node status
+
+# Service status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ service status
+```
+
 ### user-settings.yml is a ConfigMap subPath mount
 
 `user-settings.yml` is mounted from a ConfigMap as a `subPath` at
@@ -64,12 +82,18 @@ rest of the PV. Do not change this to a directory mount.
 ### Sharing one PV between smartnode and validator
 
 Both `rocketpool-smartnode` and `rocketpool-validator` support
-`persistence.existingClaim`. Deploy in order:
+`persistence.existingClaim`. Build the Rocket Pool validator in order:
 
 ```bash
+# 1. Install the smartnode and create the shared PVC.
 helm install rp-smartnode charts/rocketpool-smartnode -n ethereum
 # PVC `rp-smartnode-rocketpool-smartnode-data` is created.
 
+# 2. Recover the Rocket Pool wallet without recovering validator keys.
+POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode -o jsonpath='{.items[0].metadata.name}')
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet recover --skip-validator-key-recovery
+
+# 3. Install the validator and reuse the smartnode PVC.
 helm install rp-validator charts/rocketpool-validator -n ethereum \
   --set persistence.existingClaim=rp-smartnode-rocketpool-smartnode-data
 ```

@@ -89,14 +89,14 @@ exporter:
   containerTag: prom/node-exporter:v1.10.2
   enableRootFs: "false"
 externalExecution:
-  httpUrl: http://el-geth-rpc:8545
-  wsUrl: ws://el-geth-rpc:8546
+  httpUrl: http://el-geth:8545
+  wsUrl: ws://el-geth:8546
 externalLighthouse:
   additionalVcFlags: ""
   containerTag: sigp/lighthouse:v8.1.3
   doppelgangerDetection: "true"
   graffiti: ""
-  httpUrl: http://cl-lighthouse-api:5052
+  httpUrl: http://cl-lighthouse:5052
   keymanagerApiPort: "5062"
   suggestedBlockGasLimit: ""
 externalLodestar:

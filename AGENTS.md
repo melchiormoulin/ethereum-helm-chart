@@ -104,6 +104,23 @@ Rocket Pool Saturn smartnode daemon.
 - Daemon API service port: `8080`
 - Metrics service port: `9102`
 
+**Operator commands:**
+```bash
+POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode -o jsonpath='{.items[0].metadata.name}')
+
+# Recover wallet without recovering validator keys
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet recover --skip-validator-key-recovery
+
+# Wallet status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet status
+
+# Node status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node status
+
+# Service status
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ service status
+```
+
 ### 4. Base Node (`charts/base/`)
 
 Base mainnet node (OP Stack L2).
