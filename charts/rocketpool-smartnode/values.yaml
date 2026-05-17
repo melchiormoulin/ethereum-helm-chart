@@ -35,7 +35,7 @@ affinity: {}
 
 # Smartnode daemon (rocketpoold) entrypoint.
 command: ["/go/bin/rocketpool"]
-args: ["--settings=/data/.rocketpool/user-settings.yml", "node"]
+args: ["--settings=/.rocketpool/user-settings.yml", "node"]
 
 config:
   # Selects config/<profile>/user-settings.yml. This file is generated from
@@ -51,7 +51,7 @@ persistence:
   existingClaim: ""                   # if you want to bind an existing PVC
   volumeMode: "Filesystem"             # or "Block" if you use raw block storage
   volumeName: "rocketpool-smartnode"       # specify a particular PV to bind to
-  mountPath: /data/.rocketpool  # where to mount the volume in the container
+  mountPath: /.rocketpool  # where to mount the volume in the container
 
 # --- Service ---
 service:
