@@ -2,11 +2,18 @@
 {{- $configRaw := required (printf "missing Rocket Pool config file: %s" $configPath) (.Files.Get $configPath) }}
 {{- $configParsed := fromYaml $configRaw }}
 {{- $configVersion := "" }}
+{{- $configNetwork := "" }}
 {{- if and $configParsed (hasKey $configParsed "root") }}
 {{-   $configVersion = index $configParsed.root "version" }}
 {{- end }}
+{{- if and $configParsed (hasKey $configParsed "smartnode") }}
+{{-   $configNetwork = index $configParsed.smartnode "network" }}
+{{- end }}
 {{- if and $configVersion (ne $configVersion .Values.image.tag) }}
 {{-   fail (printf "Rocket Pool config drift: %s has root.version=%s but image.tag=%s. Regenerate the profile with rocketpool/smartnode:%s (see README)." $configPath $configVersion .Values.image.tag .Values.image.tag) }}
+{{- end }}
+{{- if and $configNetwork (not (has $configNetwork (list "mainnet" "testnet"))) }}
+{{-   fail (printf "Rocket Pool config error: %s has smartnode.network=%s. Smartnode %s supports only mainnet or testnet; use testnet for Hoodi/Saturn." $configPath $configNetwork .Values.image.tag) }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap

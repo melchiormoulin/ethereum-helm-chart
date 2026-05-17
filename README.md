@@ -97,13 +97,15 @@ docker run --rm -it --entrypoint=rocketpool-cli \
   rocketpool/smartnode:v1.20.2 --allow-root service config
 ```
 
-Replace `testnet` with `mainnet` (or another profile) and the image tag
-with the target release. After the CLI exits, edit the generated file:
+Replace `testnet` with `mainnet` for production and the image tag with
+the target release. For Hoodi/Saturn, keep the Smartnode profile and
+`smartnode.network` as `testnet`; Smartnode `v1.20.2` does not accept
+`hoodi` as a network value. After the CLI exits, edit the generated file:
 
 - `externalExecution.httpUrl`: `http://el-geth-rpc:8545`
 - `externalExecution.wsUrl`: `ws://el-geth-rpc:8546`
 - `externalLighthouse.httpUrl`: `http://cl-lighthouse-api:5052`
-- Confirm `smartnode.network` matches the profile name
+- Confirm `smartnode.network` is `testnet` for Hoodi/Saturn or `mainnet` for production
 - Confirm `root.version` matches the image tag in `values.yaml`
 
 Then commit the file together with the `image.tag` bump.
