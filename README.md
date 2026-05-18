@@ -100,14 +100,23 @@ kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node regi
 kubectl -n ethereum exec "$POD" -- mkdir -p /.rocketpool/data/rewards-trees
 kubectl -n ethereum rollout restart deployment/rocketpool-smartnode
 
-# 5. Install the validator and reuse the smartnode PVC.
+# 5. Initialize the fee distributor and copy its address from `node status`.
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node initialize-fee-distributor
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node status
+
+# 6. Install the validator, reuse the smartnode PVC, and set the fee recipient.
 helm install rp-validator charts/rocketpool-validator -n ethereum \
-  --set persistence.existingClaim=rp-smartnode-rocketpool-smartnode-data
+  --set persistence.existingClaim=rp-smartnode-rocketpool-smartnode-data \
+  --set suggestedFeeRecipient=<fee-distributor-address>
 ```
 
 `ReadWriteOnce` means both pods must run on the same node. Use matching
 `nodeSelector` or pod affinity to keep them scheduled together. This is
 the recommended layout — Rocket Pool Saturn is a single-node design.
+
+Set `rocketpool-validator.suggestedFeeRecipient` to the Rocket Pool fee
+distributor address. Lighthouse exits with `Validator is missing fee
+recipient` when this value is not set for discovered validator keys.
 
 ### Lighthouse slashing-protection recovery
 

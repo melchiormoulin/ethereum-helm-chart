@@ -23,6 +23,11 @@ podLabels: {}
 command: ["lighthouse"]
 args: []
 
+# Optional execution fee recipient for validator duties. For Rocket Pool
+# nodes, set this to the node fee distributor address shown by
+# `rocketpool-cli -c /.rocketpool/ node status`.
+suggestedFeeRecipient: ""
+
 persistence:
   enabled: true
   accessModes: ["ReadWriteOnce"]

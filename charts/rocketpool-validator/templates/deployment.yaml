@@ -55,6 +55,9 @@ spec:
             - --metrics-address=0.0.0.0
             - --metrics-port={{ .Values.service.ports.metrics.targetPort }}
             - --enable-doppelganger-protection
+{{- if .Values.suggestedFeeRecipient }}
+            - --suggested-fee-recipient={{ .Values.suggestedFeeRecipient }}
+{{- end }}
 {{- with .Values.args }}
 {{ toYaml . | nindent 12 }}
 {{- end }}

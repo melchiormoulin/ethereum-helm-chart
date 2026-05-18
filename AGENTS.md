@@ -170,9 +170,22 @@ Separate Lighthouse validator client for Rocket Pool Saturn.
 - Connects to beacon node at `cl-lighthouse-api:5052`
 - Validator API port: `5062`, metrics port: `5064`
 - Supports sharing the smartnode PVC via `persistence.existingClaim`
+- Supports `suggestedFeeRecipient` for the Lighthouse `--suggested-fee-recipient` flag; set it to the Rocket Pool fee distributor address from `rocketpool-cli -c /.rocketpool/ node status`
 
 **Operator commands:**
 Use this only when Lighthouse fails with `UnregisteredValidator(...)` and the validator has never signed duties elsewhere, or after carefully accepting the slashing-protection reset risk.
+
+If Lighthouse fails with `Validator is missing fee recipient`, initialize the Rocket Pool fee distributor and set `rocketpool-validator.suggestedFeeRecipient` to the fee distributor address before redeploying the validator.
+
+```bash
+POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode -o jsonpath='{.items[0].metadata.name}')
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node initialize-fee-distributor
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node status
+
+helm upgrade --install rocketpool-validator charts/rocketpool-validator -n ethereum \
+  --set persistence.existingClaim=<smartnode-pvc> \
+  --set suggestedFeeRecipient=<fee-distributor-address>
+```
 
 ```bash
 # Inspect current validator args and pod state
