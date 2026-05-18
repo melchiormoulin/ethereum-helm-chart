@@ -111,6 +111,13 @@ POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode
 # Recover wallet without recovering validator keys
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet recover --skip-validator-key-recovery
 
+# Register node
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node register
+
+# Create rewards tree directory so Smartnode can download reward trees
+kubectl -n ethereum exec "$POD" -- mkdir -p /.rocketpool/data/rewards-trees
+kubectl -n ethereum rollout restart deployment/rocketpool-smartnode
+
 # Wallet status
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet status
 

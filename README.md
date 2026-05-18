@@ -93,7 +93,14 @@ helm install rp-smartnode charts/rocketpool-smartnode -n ethereum
 POD=$(kubectl -n ethereum get pod -l app.kubernetes.io/name=rocketpool-smartnode -o jsonpath='{.items[0].metadata.name}')
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet recover --skip-validator-key-recovery
 
-# 3. Install the validator and reuse the smartnode PVC.
+# 3. Register the Rocket Pool node.
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node register
+
+# 4. Create the rewards tree directory so Smartnode can download reward trees.
+kubectl -n ethereum exec "$POD" -- mkdir -p /.rocketpool/data/rewards-trees
+kubectl -n ethereum rollout restart deployment/rocketpool-smartnode
+
+# 5. Install the validator and reuse the smartnode PVC.
 helm install rp-validator charts/rocketpool-validator -n ethereum \
   --set persistence.existingClaim=rp-smartnode-rocketpool-smartnode-data
 ```
