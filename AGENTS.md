@@ -114,6 +114,9 @@ kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet re
 # Register node
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node register
 
+# Initialize fee distributor
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node initialize-fee-distributor
+
 # Create rewards tree directory so Smartnode can download reward trees
 kubectl -n ethereum exec "$POD" -- mkdir -p /.rocketpool/data/rewards-trees
 kubectl -n ethereum rollout restart deployment/rocketpool-smartnode

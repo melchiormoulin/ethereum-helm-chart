@@ -69,6 +69,9 @@ kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ wallet st
 # Node status
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node status
 
+# Initialize fee distributor
+kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ node initialize-fee-distributor
+
 # Service status
 kubectl -n ethereum exec -it "$POD" -- rocketpool-cli -c /.rocketpool/ service status
 ```
