@@ -109,6 +109,36 @@ helm install rp-validator charts/rocketpool-validator -n ethereum \
 `nodeSelector` or pod affinity to keep them scheduled together. This is
 the recommended layout — Rocket Pool Saturn is a single-node design.
 
+### Lighthouse slashing-protection recovery
+
+If the validator pod fails with `UnregisteredValidator(...)`, Lighthouse
+found a validator keystore that is missing from its slashing protection
+database. Only initialize a new slashing protection entry if the validator
+has never signed duties elsewhere, or after carefully accepting the
+slashing-protection reset risk.
+
+```bash
+# Inspect current validator args and pod state
+kubectl -n ethereum get deployment rocketpool-validator -o jsonpath='{.spec.template.spec.containers[0].args}'
+kubectl -n ethereum get pods -l app.kubernetes.io/name=rocketpool-validator -o wide
+
+# Temporarily initialize Lighthouse slashing protection for discovered keys
+kubectl -n ethereum patch deployment rocketpool-validator --type=json \
+  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--init-slashing-protection"}]'
+kubectl -n ethereum rollout status deployment/rocketpool-validator
+kubectl -n ethereum logs -l app.kubernetes.io/name=rocketpool-validator --tail=120
+
+# Remove the temporary flag after the validator starts successfully
+kubectl -n ethereum patch deployment rocketpool-validator --type=json \
+  -p='[{"op":"remove","path":"/spec/template/spec/containers/0/args/12"}]'
+kubectl -n ethereum rollout status deployment/rocketpool-validator
+
+# Verify the final pod state, logs, and args
+kubectl -n ethereum get pods -l app.kubernetes.io/name=rocketpool-validator -o wide
+kubectl -n ethereum logs -l app.kubernetes.io/name=rocketpool-validator --tail=120
+kubectl -n ethereum get deployment rocketpool-validator -o jsonpath='{.spec.template.spec.containers[0].args}'
+```
+
 ## Smartnode config profile (`user-settings.yml`)
 
 The chart selects `charts/rocketpool-smartnode/config/<profile>/user-settings.yml`

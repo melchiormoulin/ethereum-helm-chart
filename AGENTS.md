@@ -171,6 +171,31 @@ Separate Lighthouse validator client for Rocket Pool Saturn.
 - Validator API port: `5062`, metrics port: `5064`
 - Supports sharing the smartnode PVC via `persistence.existingClaim`
 
+**Operator commands:**
+Use this only when Lighthouse fails with `UnregisteredValidator(...)` and the validator has never signed duties elsewhere, or after carefully accepting the slashing-protection reset risk.
+
+```bash
+# Inspect current validator args and pod state
+kubectl -n ethereum get deployment rocketpool-validator -o jsonpath='{.spec.template.spec.containers[0].args}'
+kubectl -n ethereum get pods -l app.kubernetes.io/name=rocketpool-validator -o wide
+
+# Temporarily initialize Lighthouse slashing protection for discovered keys
+kubectl -n ethereum patch deployment rocketpool-validator --type=json \
+  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--init-slashing-protection"}]'
+kubectl -n ethereum rollout status deployment/rocketpool-validator
+kubectl -n ethereum logs -l app.kubernetes.io/name=rocketpool-validator --tail=120
+
+# Remove the temporary flag after the validator starts successfully
+kubectl -n ethereum patch deployment rocketpool-validator --type=json \
+  -p='[{"op":"remove","path":"/spec/template/spec/containers/0/args/12"}]'
+kubectl -n ethereum rollout status deployment/rocketpool-validator
+
+# Verify the final pod state, logs, and args
+kubectl -n ethereum get pods -l app.kubernetes.io/name=rocketpool-validator -o wide
+kubectl -n ethereum logs -l app.kubernetes.io/name=rocketpool-validator --tail=120
+kubectl -n ethereum get deployment rocketpool-validator -o jsonpath='{.spec.template.spec.containers[0].args}'
+```
+
 ## JWT Authentication
 
 Both Geth and Lighthouse use JWT tokens for Engine API authentication. By default, the charts use HashiCorp Vault injector to mount the JWT token.
